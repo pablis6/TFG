@@ -9,13 +9,12 @@ chunks_path_1 = './encrypt/chunks/'
 key_path_1 = '../aesrypt/secret.key'
 key_path_2 = '../aesrypt/secret2.key'
 
-
 # split genera los ficheros en el path de donde ha sido llamado el script...
 split_path = '/home/rnov/tfg/dropboxApi/'
 global_list = []
 
 
-def get_files_names(files_path, filter_char):
+def __get_files_names(files_path, filter_char):
     """
     auxiliary function that obtains the files names in a given directory.
     :param files_path: str folder's path
@@ -118,7 +117,7 @@ def decrypt_chunks_parallel(files_path, key_path_chunk, dst_path=None):
     # remove all .aes files from files_path, for test in case same folder
 
 
-def aux_decrypt_file(chunk, files_path, dst_path, key_path):
+def __aux_decrypt_file(chunk, files_path, dst_path, key_path):
         """
         decrypt_to_file() and decrypt_to_file_parallel() auxiliary function that merges the chunks into
         single file and decrypts it.
@@ -150,9 +149,9 @@ def decrypt_to_file(files_path, key_path, dst_path=None):
     if dst_path is None:
         dst_path = str(files_path)
 
-    list_files = get_files_names(files_path, '-')  # lists the names of all files from the chucks, gets the name's files
+    list_files = __get_files_names(files_path, '-')  # lists the names of all files from the chucks, gets the name's files
     for chunk in list_files:
-        aux_decrypt_file(chunk, files_path, dst_path, key_path)
+        __aux_decrypt_file(chunk, files_path, dst_path, key_path)
 
 
 def decrypt_to_file_parallel(files_path, key_path, dst_path=None):
@@ -166,36 +165,36 @@ def decrypt_to_file_parallel(files_path, key_path, dst_path=None):
     if dst_path is None:
         dst_path = str(files_path)
 
-    list_files = get_files_names(files_path, '-')  # lists the names of all files from the chucks, gets the name of the files
+    list_files = __get_files_names(files_path, '-')  # lists the names of all files from the chucks, gets the name of the files
 
     pool = Pool(processes=30,)
-    multiple_results = [pool.apply_async(aux_decrypt_file, (chunk, files_path, dst_path, key_path))
+    multiple_results = [pool.apply_async(__aux_decrypt_file, (chunk, files_path, dst_path, key_path))
                         for chunk in list_files]
     #print multiple_results
     for res in multiple_results:
         res.get()  # timeout=3
 
 
-def aux_decrypt():
+def __aux_decrypt():
     """
     auxiliary function that helps debugging decryption functions from encryption module
     :return: None
     """
     decrypt_chunks_parallel(chunks_path_1, key_path_2)
-    #decrypt_chunks(chunks_path_1, key_path_2)
+    # decrypt_chunks(chunks_path_1, key_path_2)
     # decrypt_to_file(chunks_path_1, key_path_1)
     decrypt_to_file_parallel(chunks_path_1, key_path_1)
 
-#encrypt_files(files_path_1, key_path_1, chunks_path_1)  # -> .xyt.aes file and creates 3 chunks from it
-#encrypt_chunks(chunks_path_1, key_path_2)  # encrypts the chunks -> chunks.aes
+# encrypt_files(files_path_1, key_path_1, chunks_path_1)  # -> .xyt.aes file and creates 3 chunks from it
+# encrypt_chunks(chunks_path_1, key_path_2)  # encrypts the chunks -> chunks.aes
 
 import timeit
 
-#print timeit.timeit(aux_decrypt, number=1)
+# print timeit.timeit(aux_decrypt, number=1)
 
-#decrypt_chunks(chunks_path_1, key_path_2)  # decrypt the chunks.aes -> chunks
-#decrypt_to_file(chunks_path_1, key_path_1)  # merge the chunks into files and decrypts them, chunks -> files.xyt
-#decrypt_to_file_parallel(chunks_path_1, key_path_1)
+# decrypt_chunks(chunks_path_1, key_path_2)  # decrypt the chunks.aes -> chunks
+# decrypt_to_file(chunks_path_1, key_path_1)  # merge the chunks into files and decrypts them, chunks -> files.xyt
+# decrypt_to_file_parallel(chunks_path_1, key_path_1)
 
-#set_list = set(global_list)
-#print set_list
+# set_list = set(global_list)
+# print set_list
