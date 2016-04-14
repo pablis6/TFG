@@ -3,15 +3,18 @@ import os
 from multiprocessing import Pool
 
 
-# relative paths
-files_path_1 = './encrypt/'
-chunks_path_1 = './encrypt/chunks/'
+# relative paths (mover fuera)
+#files_path_1 = './encrypt/'
+#chunks_path_1 = './encrypt/chunks/'
 key_path_1 = '../aesrypt/secret.key'
 key_path_2 = '../aesrypt/secret2.key'
 
 # split genera los ficheros en el path de donde ha sido llamado el script...
 split_path = '/home/rnov/tfg/dropboxApi/'
-global_list = []
+#global_list = []
+# variables que se utilizan a lo largo de todas las funciones, internar que se cargue su valor por YALMP
+enc_format = '.aes'
+
 
 
 def __get_files_names(files_path, filter_char):
@@ -28,7 +31,7 @@ def __get_files_names(files_path, filter_char):
 
 def encrypt_files(files_path, key_path, chunks_path):
     """
-    encrypts .xyt files in a given directory with a given key
+    encrypts .xyt files in a given directory with a given key, and splits them.
     :param files_path: str path to the directory
     :param key_path: str key's path
     :param chunks_path: str chunks's path
@@ -36,13 +39,13 @@ def encrypt_files(files_path, key_path, chunks_path):
     """
     list_files = os.listdir(files_path)
     for xytfile in list_files:
-        if xytfile.rfind('.xyt') > 1:  # while the file has the format .xyt
+        if xytfile.rfind('.xyt') > 1:  # while the file has .xyt format
             subprocess.call(['aescrypt', '-e', '-k', key_path, files_path+xytfile])  # encrypt .xyt file
             name = xytfile.rstrip('.xyt')
             name += '-'  # name's format for the chunks
-            subprocess.call(['split', '-n', '3', files_path+xytfile+'.aes', name,
+            subprocess.call(['split', '-n', '3', files_path+xytfile+enc_format, name,
                              '--numeric-suffixes=2'])  # split the file in chunks (no deja en el mismo dir)
-
+    # move the chunks back to the given path
     list_files = os.listdir(split_path)
     for chunks in list_files:
         if chunks.rfind('-0') > -1:
@@ -50,7 +53,7 @@ def encrypt_files(files_path, key_path, chunks_path):
             subprocess.call(['mv', '-f', split_path+chunks, chunks_path+chunks])
 
 
-def encrypt_chunks(chunks_path, key_path):
+def encrypt_chunks_tar(chunks_path, key_path, suffix):
     """
     encrypts files (chunks of a file/s) in a given directory with a given key
     :param chunks_path: str directory's path
@@ -58,7 +61,7 @@ def encrypt_chunks(chunks_path, key_path):
     :return: None
     """
     listFiles = os.listdir(chunks_path)
-    suffix = '-0'  # needed suffix for the files to be processed
+    #suffix = '-0'  # needed suffix for the files to be processed
     for chunks_file in listFiles:
         if chunks_file.rfind(suffix) > 1:  # while the file has the suffix and it is not in the first position
             subprocess.call(['aescrypt', '-e', '-k', key_path, chunks_path+chunks_file])
@@ -76,14 +79,14 @@ def decrypt_chunks(files_path, key_path_chunk, dst_path=None):
         dst_path = files_path
     list_files = os.listdir(files_path)
     for aes_file in list_files:  # decrypt the chunks
-        if aes_file.rfind('.aes') > -1:  # while a file has the format .aes, decrypt it
+        if aes_file.rfind(enc_format) > -1:  # while a file has the format .aes, decrypt it
             subprocess.call(['aescrypt', '-d', '-k', key_path_chunk, dst_path+aes_file])
 
-    subprocess.call('rm -f {0}*.aes'.format(files_path), shell=True)
+    subprocess.call('rm -f {0}*{1}'.format(files_path, enc_format), shell=True)
     # remove all .aes files from files_path, for test in case same folder
 
 
-def aux_wrapper_decrypt_chunks(aes_file, key_path_chunk, dst_path):
+def __aux_wrapper_decrypt_chunks(aes_file, key_path_chunk, dst_path):
     """
     auxiliary wrapper function used in decrypt_chunks_parallel.
     :param aes_file: str name
@@ -108,12 +111,12 @@ def decrypt_chunks_parallel(files_path, key_path_chunk, dst_path=None):
     #print list_files
 
     pool = Pool(processes=30,)  # 30
-    multiple_results = [pool.apply_async(aux_wrapper_decrypt_chunks, (aes_file, key_path_chunk, dst_path))
-                        for aes_file in list_files if aes_file.rfind('.aes') > -1]
+    multiple_results = [pool.apply_async(__aux_wrapper_decrypt_chunks, (aes_file, key_path_chunk, dst_path))
+                        for aes_file in list_files if aes_file.rfind(enc_format) > -1]
     #print multiple_results
     for res in multiple_results:
         res.get()  # timeout=3
-    subprocess.call('rm -f {0}*.aes'.format(files_path), shell=True)
+    subprocess.call('rm -f {0}*{1}'.format(files_path, enc_format), shell=True)
     # remove all .aes files from files_path, for test in case same folder
 
 
@@ -130,12 +133,13 @@ def __aux_decrypt_file(chunk, files_path, dst_path, key_path):
         from_path = files_path+chunk+'*'
         to_path = dst_path+chunk
 
-        cat_command = '{0} > {1}.xyt.aes'.format(from_path, to_path)  # forms cat call
+        cat_command = '{0} > {1}.xyt{2}'.format(from_path, to_path, enc_format)  # forms cat call
         subprocess.call('cat {0}'.format(cat_command), shell=True)  # merge the chucks from one file to a file.
         subprocess.call('rm -f {0}{1}-*'.format(files_path, chunk), shell=True)  # removes single file's chucks
-        single_file_path = to_path+'.xyt.aes'  # file_name
+        single_file_path = to_path+'.xyt{0}'.format(enc_format)  # file_name
         subprocess.call(['aescrypt', '-d', '-k', key_path, single_file_path])  # decrypt single file
-        subprocess.call('rm -f {0}{1}*.aes'.format(dst_path, chunk), shell=True)  # remove .aes remaining file
+        subprocess.call('rm -f {0}{1}*{2}'.format(dst_path, chunk, enc_format), shell=True)
+        # remove .aes remaining file
 
 
 def decrypt_to_file(files_path, key_path, dst_path=None):
@@ -175,26 +179,13 @@ def decrypt_to_file_parallel(files_path, key_path, dst_path=None):
         res.get()  # timeout=3
 
 
-def __aux_decrypt():
+def __aux_decrypt(chunks_path_1):
     """
     auxiliary function that helps debugging decryption functions from encryption module
-    :return: None
+    :param chunks_path_1:
+    :return:
     """
     decrypt_chunks_parallel(chunks_path_1, key_path_2)
     # decrypt_chunks(chunks_path_1, key_path_2)
     # decrypt_to_file(chunks_path_1, key_path_1)
     decrypt_to_file_parallel(chunks_path_1, key_path_1)
-
-# encrypt_files(files_path_1, key_path_1, chunks_path_1)  # -> .xyt.aes file and creates 3 chunks from it
-# encrypt_chunks(chunks_path_1, key_path_2)  # encrypts the chunks -> chunks.aes
-
-import timeit
-
-# print timeit.timeit(aux_decrypt, number=1)
-
-# decrypt_chunks(chunks_path_1, key_path_2)  # decrypt the chunks.aes -> chunks
-# decrypt_to_file(chunks_path_1, key_path_1)  # merge the chunks into files and decrypts them, chunks -> files.xyt
-# decrypt_to_file_parallel(chunks_path_1, key_path_1)
-
-# set_list = set(global_list)
-# print set_list
