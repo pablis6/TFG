@@ -7,22 +7,97 @@ import Queue as q_exception  # since queue exceptions are not available in the m
 import logging
 import apidropbox as drop
 import encryption as enc
+import tarfile
 import time
 
+# chunks
 dropbox_path_1 = '/pin0000-1'
 dropbox_path_2 = '/pin0000-2'
 dropbox_path_3 = '/pin0000-3'
+# tar.gz
+dropbox_path_1_dw = '/pin4444-1'  # sin slash para bajar cosas
+dropbox_path_2_dw = '/pin4444-2'
+dropbox_path_3_dw = '/pin4444-3'
 
 
-def download_chunks(local_path, download_q):
+def __buid_bozorth_lis_file(local_path, name_lis):
+    # built the file
+    files = os.listdir(local_path)  # lista los ficheros, 'docker/local_path/'
+    files = ['{0}{1}\n'.format(local_path, i) for i in files]  # add the path to the files (relative to .py)
+    # configures the listXyt.lis which is used by bozorth
+    # open mind the mode
+    with open('{0}{1}.lis'.format(local_path, name_lis), 'w') as f:  # fix path, writes path's files to listXyt.lis
+        for path in files:
+            f.write(path)
+        f.close()
 
 
+def __extract_tarfile(input_filename, dst_path):
+    """
+    extract files ....
+    :param intput_filename: str
+    :param dst_path: str
+    :return: none
+    """
+    slash = '/'
+    with tarfile.open(input_filename, 'r:gz') as tar:
+        ar = tar.getmembers()  # get the members withing tar.gz
+        tar.extractall(path=dst_path)  # extract tar.gz in given dst_path
+        tar.close()
+        ar = ar.pop(0)  # name of the folder within tar.gz
+        src_path = dst_path + slash + ar.name  # dst_path with folder within the tar.gz
+        files = os.listdir(src_path)  # list files withing folder tar.gz
+
+        for file_name in files:
+            dst_path_2 = dst_path + slash + file_name  # dst path for files within folder
+            src_path_2 = src_path + slash + file_name  # src path files within folder
+            #print dst_path_2
+            #print src_path_2
+            os.rename(src_path_2, dst_path_2)  # move files
+        os.rmdir(src_path)  # remove folder from tar.gz
+
+
+def download_tar(local_path, download_q, OAuth_token, name_lis):
+        try:
+
+            p1 = Process(target=drop.retrieve_folder_parallel, args=(dropbox_path_1_dw, local_path, OAuth_token))
+            p1.start()
+            p2 = Process(target=drop.retrieve_folder_parallel, args=(dropbox_path_2_dw, local_path, OAuth_token))
+            p2.start()
+            p3 = Process(target=drop.retrieve_folder_parallel, args=(dropbox_path_3_dw, local_path, OAuth_token))
+            p3.start()
+
+            p1.join()
+            p2.join()
+            p3.join()
+
+            enc.decrypt_chunks_parallel(local_path, enc.key_path_2)
+            files = os.listdir(local_path)
+            for file_name in files:
+                if file_name.rfind('.tar.gz'):
+                    __extract_tarfile(file_name, local_path)
+            # borramos .tar.gz ? por al no estobar ademas al final sera borrado
+            # nota el formato de tar.gz contien '-' lo que hace que lo trate aescrypt
+            # cambirlo por _ -> pinxxxx_1
+            enc.decrypt_to_file_parallel(local_path, enc.key_path_1)
+            # build the file .lis
+            __buid_bozorth_lis_file(local_path, name_lis)
+
+        except (OSError, IOError) as e:
+            logging.error('error ')
+            download_q.put(1)
+        else:
+            download_q.put('download_done')
+
+
+def download_chunks(local_path, download_q, OAuth_token, name_lis):
+    # que se le pase el pin -> dropbox_path
     try:
-        p1 = Process(target=drop.retrieve_folder_parallel, args=(dropbox_path_1, local_path))  # local_path
+        p1 = Process(target=drop.retrieve_folder_parallel, args=(dropbox_path_1, local_path, OAuth_token))  # local_path
         p1.start()
-        p2 = Process(target=drop.retrieve_folder_parallel, args=(dropbox_path_2, local_path))  # local_path
+        p2 = Process(target=drop.retrieve_folder_parallel, args=(dropbox_path_2, local_path, OAuth_token))  # local_path
         p2.start()
-        p3 = Process(target=drop.retrieve_folder_parallel, args=(dropbox_path_3, local_path))  # local_path
+        p3 = Process(target=drop.retrieve_folder_parallel, args=(dropbox_path_3, local_path, OAuth_token))  # local_path
         p3.start()
 
         p1.join()
@@ -32,15 +107,8 @@ def download_chunks(local_path, download_q):
         # decrypt
         enc.decrypt_chunks_parallel(local_path, enc.key_path_2)
         enc.decrypt_to_file_parallel(local_path, enc.key_path_1)
-        # built the file
-        files = os.listdir(local_path)  # lista los ficheros, 'docker/local_path/'
-        files = ['{0}{1}\n'.format(local_path, i) for i in files]  # add the path to the files (relative to .py)
-        # configures the listXyt.lis which is used by bozorth
-        # open mind the mode
-        with open('{0}listXyt.lis'.format(local_path), 'w') as f:  # fix path, writes path's files to listXyt.lis
-            for path in files:
-                f.write(path)
-            f.close()
+        # build the file .lis
+        __buid_bozorth_lis_file(local_path, name_lis)
 
     except (OSError, IOError) as e:
         logging.error('error ')
@@ -52,19 +120,22 @@ def download_chunks(local_path, download_q):
 def extract_mindtct(source_path, extract_q):
 
     try:
-        name = source_path[source_path.rfind('docker'):source_path.rfind('.')]  # docker, relative to .py caller
+        #name = source_path[source_path.rfind('docker'):source_path.rfind('.')]  # docker, relative to .py caller
+        name = os.path.basename(source_path)
+        name = name[:name.rfind('.')]
+
         #logging.error('esto es una prueba ')
         cmd = 'docker/mindtct -b {0} {1}'.format(source_path, name)
         os.system(cmd)
         os.remove(source_path)  # removes the image
     except OSError as e:
-        logging.error('error')
+        logging.error('fail')
         extract_q.put(1)
     else:
         extract_q.put('extract_done')
 
 
-def compare(source_path, local_path, read_q, q_timeout):
+def compare(source_path, local_path, read_q, q_timeout, min_value):
 
     try:
         extract = read_q.get(timeout=q_timeout)
@@ -85,26 +156,22 @@ def compare(source_path, local_path, read_q, q_timeout):
 
                 max_value = max(res_list)  # get greatest number
                 max_index = res_list.index(max_value)  # get its index
-
                 # get fingerprint's id through the (index)line number from listxyt.lis
                 line = linecache.getline('{0}listXyt.lis'.format(local_path), max_index+1)
-                #mide = time.time()
-                line = line[line.rfind('/')+1:line.rfind('.')]
-                #print time.time() - mide
-                print 'the match with : {0}'.format(line)  # the result, name of the greates one
+                #line = line[line.rfind('/')+1:line.rfind('.')]
+                line = os.path.basename(line)
+                line = line[:line.rfind('.')]
+                if min_value <= int(line):
+                    print 'the match with : {0}'.format(line)  # the result, name of the greates one
         else:
             #print ' delete files as well'
             logging.error('timeout, no response')
 
 
 
-
-
-
-
 #local_path = './local_path/'
 #local_path = './docker/local_path/'
-#local_path = 'docker/local_path/'  # local_path == f_path it is the work path ...
+local_path = 'docker/local_path/'  # local_path == f_path it is the work path ...
 
 def download(f_path):
 
