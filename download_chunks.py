@@ -21,12 +21,18 @@ dropbox_path_3_dw = '/pin4444-3'
 
 
 def __buid_bozorth_lis_file(local_path, name_lis):
+    """
+
+    :param local_path:
+    :param name_lis:
+    :return:
+    """
     # built the file
     files = os.listdir(local_path)  # lista los ficheros, 'docker/local_path/'
     files = ['{0}{1}\n'.format(local_path, i) for i in files]  # add the path to the files (relative to .py)
     # configures the listXyt.lis which is used by bozorth
     # open mind the mode
-    with open('{0}{1}.lis'.format(local_path, name_lis), 'w') as f:  # fix path, writes path's files to listXyt.lis
+    with open('{0}/{1}.lis'.format(local_path, name_lis), 'w') as f:  # fix path, writes path's files to listXyt.lis
         for path in files:
             f.write(path)
         f.close()
@@ -57,6 +63,19 @@ def __extract_tarfile(input_filename, dst_path):
         os.rmdir(src_path)  # remove folder from tar.gz
 
 
+def __deal_with_tar(local_path, key_tar):
+    enc.decrypt_chunks_parallel(local_path, key_tar)
+    files = os.listdir(local_path)
+    for file_name in files:
+        if file_name.rfind('.tar.gz'):
+            __extract_tarfile(file_name, local_path)
+
+
+def __deal_with_chunks(key_chunks, key_file):
+    enc.decrypt_chunks_parallel(local_path, key_chunks)
+    enc.decrypt_to_file_parallel(local_path, key_file)
+
+
 def download_tar(local_path, download_q, OAuth_token, name_lis):
         try:
 
@@ -70,12 +89,13 @@ def download_tar(local_path, download_q, OAuth_token, name_lis):
             p1.join()
             p2.join()
             p3.join()
-
+            #  decrypts tar.gz and extract files in local_path
             enc.decrypt_chunks_parallel(local_path, enc.key_path_2)
             files = os.listdir(local_path)
             for file_name in files:
                 if file_name.rfind('.tar.gz'):
                     __extract_tarfile(file_name, local_path)
+
             # borramos .tar.gz ? por al no estobar ademas al final sera borrado
             # nota el formato de tar.gz contien '-' lo que hace que lo trate aescrypt
             # cambirlo por _ -> pinxxxx_1
@@ -117,15 +137,11 @@ def download_chunks(local_path, download_q, OAuth_token, name_lis):
         download_q.put('download_done')
 
 
-def extract_mindtct(source_path, extract_q):
+def extract_mindtct(source_path, extract_q, dst_path):
 
     try:
-        #name = source_path[source_path.rfind('docker'):source_path.rfind('.')]  # docker, relative to .py caller
-        name = os.path.basename(source_path)
-        name = name[:name.rfind('.')]
-
-        #logging.error('esto es una prueba ')
-        cmd = 'docker/mindtct -b {0} {1}'.format(source_path, name)
+        relative_path = 'docker/{0}/{0}'.format(dst_path)  # docker sobrara ya que el .py estara a la misma altura
+        cmd = 'docker/mindtct_V2 -b {0} {1}'.format(source_path, relative_path)
         os.system(cmd)
         os.remove(source_path)  # removes the image
     except OSError as e:
@@ -144,7 +160,8 @@ def compare(source_path, local_path, read_q, q_timeout, min_value):
         logging.error('error sync time')
         # borra cosas...
     else:
-        if extract != 1 and download != 1:
+        #if extract != 1 and download != 1:
+        if (extract and download) != 1:
             try:
                 results = sub.check_output(['docker/bozorth3 -p {0} -G {1}listXyt.lis '.format(source_path, local_path)]
                                            , shell=True)  # compare with bozorth
@@ -161,7 +178,8 @@ def compare(source_path, local_path, read_q, q_timeout, min_value):
                 #line = line[line.rfind('/')+1:line.rfind('.')]
                 line = os.path.basename(line)
                 line = line[:line.rfind('.')]
-                if min_value <= int(line):
+                print max_value
+                if min_value <= max_value:
                     print 'the match with : {0}'.format(line)  # the result, name of the greates one
         else:
             #print ' delete files as well'
