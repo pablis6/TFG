@@ -23,7 +23,7 @@ dropbox_path_3_dw = '/pin4444-3'
 slash = '/'
 cmd_mindtct = './mindtct_V2 -b {0} {1}'
 cmd_bozorth3 = './bozorth3 -p {0} -G {1}listXyt.lis '
-cmd_bozorth32 = './bozorth3 -p {0}.xyt -G {1}listXyt.lis '
+cmd_bozorth32 = './bozorth3 -p {0}/{0}.xyt -G {1}listXyt.lis '
 
 
 def __buid_bozorth_lis_file(local_path, name_lis):
@@ -106,7 +106,7 @@ def download_tar(local_path, download_q, OAuth_token, name_lis, enc_format):
         logging.error('error ')
         download_q.put(1)
     else: # envie el path del fichero .lis
-        download_q.put('download_done')
+        download_q.put('done')
 
 
 def download_chunks(local_path, download_q, OAuth_token, name_lis, enc_format):
@@ -141,7 +141,7 @@ def download_chunks(local_path, download_q, OAuth_token, name_lis, enc_format):
         logging.error('error ')
         download_q.put(1)
     else:
-        download_q.put('download_done')
+        download_q.put('done')
 
 
 def extract_mindtct(source_path, extract_q, dst_path):
@@ -161,7 +161,7 @@ def extract_mindtct(source_path, extract_q, dst_path):
         logging.error('mindtct_V2 OS error')
         extract_q.put(1)
     else:
-        extract_q.put(relative_path)
+        extract_q.put('done')
 
 
 def compare(dir_name, local_path, read_q, q_timeout, min_value):
@@ -175,16 +175,16 @@ def compare(dir_name, local_path, read_q, q_timeout, min_value):
     :return:
     '''
     try:
-        extract = read_q.get(timeout=q_timeout)
-        download = read_q.get(timeout=q_timeout)
+        recv_1 = read_q.get(timeout=q_timeout)
+        recv_2 = read_q.get(timeout=q_timeout)
     except q_exception.Empty:
         logging.error('timeout, no response')
         shutil.rmtree(dir_name)  # borra carpeta...
     else:
         #if extract != 1 and download != 1:
-        if (extract and download) != 1:
+        if (recv_1 and recv_2) != 1:
             try:
-                results = sub.check_output([cmd_bozorth32.format(extract, local_path)]
+                results = sub.check_output([cmd_bozorth32.format(dir_name, local_path)]
                                            , shell=True)  # compare through bozorth
             except sub.CalledProcessError as e:
                 shutil.rmtree(dir_name)  # borra carpeta...
@@ -204,8 +204,9 @@ def compare(dir_name, local_path, read_q, q_timeout, min_value):
                 if min_value <= max_value:
                     print 'Match with : {0}'.format(line)  # the result, name of the greatest one
         #else:
-        #    logging.error('timeout, no response') # no tiene mucho sentido ya que los metodos que prvocan lo registran
+        #    logging.error('timeout, no response aqrqr') # no tiene mucho sentido ya que los metodos que prvocan lo registran
         shutil.rmtree(dir_name)  # siempre borrar
+
 
 
 '''
