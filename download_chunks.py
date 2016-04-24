@@ -1,4 +1,4 @@
-from multiprocessing import Process
+from multiprocessing import Pool, Process
 import os
 import subprocess as sub
 import linecache
@@ -11,6 +11,7 @@ import shutil
 import time
 ## quitar...
 # chunks
+'''
 dropbox_path_1 = '/pin0000-1'
 dropbox_path_2 = '/pin0000-2'
 dropbox_path_3 = '/pin0000-3'
@@ -18,6 +19,7 @@ dropbox_path_3 = '/pin0000-3'
 dropbox_path_1_dw = '/pin4444-1'  # sin slash para bajar cosas
 dropbox_path_2_dw = '/pin4444-2'
 dropbox_path_3_dw = '/pin4444-3'
+# '''
 ####
 
 slash = '/'
@@ -68,7 +70,25 @@ def __extract_tarfile(input_filename, dst_path):
     os.remove(dst_path+input_filename)  # removes .tar.gz once got extracted the files
 
 
-def download_tar(local_path, download_q, OAuth_token, name_lis, enc_format):
+def __get_folders_processes(local_path, OAuth_token, dropbox_paths):
+    # OAuth_token, dropbox_paths son lista una capeta por cuenta
+    # nota: no se puede implementar como un pool de procesos pq esto no pueden lanzar otros procesos(
+    # daemonic processes are not allowed to have children ) se podria si se cambia en el modulo de daemonic= yes a no
+    # pero hace el codigo no reutilizabel
+    pro_list = []
+    test_t = time.time()
+    for path in dropbox_paths:
+        k = Process(target=drop.retrieve_folder_parallel, args=(path, local_path, OAuth_token))
+        k.start()
+        pro_list.append(k)
+
+    for p in pro_list:
+        p.join()
+    print 'hey there im done {} !'.format(time.time()-test_t)
+    # 2.32230401039 2.20498013496
+
+
+def download_tar(local_path, dropbox_paths ,download_q, OAuth_token, name_lis, enc_format):
     '''
 
     :param local_path:
@@ -80,16 +100,7 @@ def download_tar(local_path, download_q, OAuth_token, name_lis, enc_format):
     '''
     try:
 
-        p1 = Process(target=drop.retrieve_folder_parallel, args=(dropbox_path_1_dw, local_path, OAuth_token))
-        p1.start()
-        p2 = Process(target=drop.retrieve_folder_parallel, args=(dropbox_path_2_dw, local_path, OAuth_token))
-        p2.start()
-        p3 = Process(target=drop.retrieve_folder_parallel, args=(dropbox_path_3_dw, local_path, OAuth_token))
-        p3.start()
-
-        p1.join()
-        p2.join()
-        p3.join()
+        __get_folders_processes(local_path, OAuth_token, dropbox_paths)
         #  decrypts tar.gz and extract files in local_path
         enc.decrypt_chunks_parallel(local_path, enc.key_path_2, enc_format)
         files = os.listdir(local_path)
@@ -109,31 +120,23 @@ def download_tar(local_path, download_q, OAuth_token, name_lis, enc_format):
         download_q.put('done')
 
 
-def download_chunks(local_path, download_q, OAuth_token, name_lis, enc_format):
+def download_chunks(local_path, dropbox_paths, download_q, OAuth_token, name_lis, enc_format):
     '''
 
     :param local_path:
+    :param dropbox_paths:
     :param download_q:
     :param OAuth_token:
     :param name_lis:
     :param enc_format:
     :return:
     '''
-    # que se le pase el pin -> dropbox_path
     try:
-        p1 = Process(target=drop.retrieve_folder_parallel, args=(dropbox_path_1, local_path, OAuth_token))  # local_path
-        p1.start()
-        p2 = Process(target=drop.retrieve_folder_parallel, args=(dropbox_path_2, local_path, OAuth_token))  # local_path
-        p2.start()
-        p3 = Process(target=drop.retrieve_folder_parallel, args=(dropbox_path_3, local_path, OAuth_token))  # local_path
-        p3.start()
-
-        p1.join()
-        p2.join()
-        p3.join()
+        # get the files from the cloud (dropbox accouts)
+        __get_folders_processes(local_path, OAuth_token, dropbox_paths)
         # decrypt
         enc.decrypt_chunks_parallel(local_path, enc.key_path_2, enc_format)
-        enc.decrypt_to_file_parallel(local_path, enc.key_path_1)
+        enc.decrypt_to_file_parallel(local_path, enc.key_path_1, enc_format)
         # build the file .lis
         __buid_bozorth_lis_file(local_path, name_lis)
 
@@ -206,7 +209,6 @@ def compare(dir_name, local_path, read_q, q_timeout, min_value):
         #else:
         #    logging.error('timeout, no response aqrqr') # no tiene mucho sentido ya que los metodos que prvocan lo registran
         shutil.rmtree(dir_name)  # siempre borrar
-
 
 
 '''
