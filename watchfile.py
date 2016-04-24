@@ -9,7 +9,7 @@ from watchdog.events import LoggingEventHandler
 import download_chunks as dw
 
 # YALM
-queue_timeout = 10
+queue_timeout = 30 # 10
 log_path = 'my_log.log'
 OAuth_token = 'rrFPgdcaJP8AAAAAAAAAHbe0eiQ3StEF2OGqWTp1DM90UeAXMEzMyZCBLlOezKbs'
 OAuth_token_2 = ''
@@ -17,6 +17,9 @@ OAuth_token_3 = ''
 min_value = 30
 name_lis = 'listXyt'
 enc_format = '.aes'
+
+dropbox_paths = ('/pin4444-1', '/pin4444-2', '/pin4444-3')
+dropbox_paths_2 = ('/pin0000-1', '/pin0000-2', '/pin0000-3')
 ###
 #local_path = 'docker/local_path/'  # local_path == f_path it is the work path ...
 
@@ -107,7 +110,7 @@ class MySLoggingEventHandler4(LoggingEventHandler):
                 if paths:  # paths = (dir_name, local_cmp)
                     queue = Queue(2)  # a queue per job
                     dict_q[paths[0]] = queue  # saves queue dir to dir with dir name as key
-                    p = Process(target=dw.download_tar, args=(paths[1], queue, OAuth_token, name_lis, enc_format,))
+                    p = Process(target=dw.download_tar, args=(paths[1], dropbox_paths, queue, OAuth_token, name_lis, enc_format,))
                     p.start()
                     # hacer o no hacer join para que lo espere, afectara queue_timeout, con join no hace falta queue
 
