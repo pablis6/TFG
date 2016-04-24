@@ -5,6 +5,32 @@ from multiprocessing import Pool, TimeoutError
 # writeMode for file/folder
 overwrite = dropbox.files.WriteMode('overwrite')
 
+#
+# private aux. methods
+#
+
+
+def __aux_upload_parallel(xytfile, local_path, dropbox_path, dbx):
+    """
+    auxiliary function that helps upload_files_parallel() function to upload files in each process
+    :param xytfile: file name
+    :param local_path: str local source path whose files will be uploaded
+    :param dropbox_path: str dropbox's path where the file will be uploaded
+    :return: None
+    """
+    try:
+        fingptr = open(local_path+'{0}'.format(xytfile))
+        dbx.files_upload(fingptr, dropbox_path, overwrite)  # dropbox_path = /xytFiles/name.xyt
+        fingptr.close()
+    except IOError as e:
+        print 'Unable to open file {0}: {1}'.format(e.errno, e.strerror)
+    except dropbox.exceptions.ApiError:
+        print 'failed uploading files'
+
+#
+# upload methods (single & multiprocess)
+#
+
 
 def upload_file(local_path, dropbox_path, OAuth_token):
     """
@@ -45,24 +71,6 @@ def upload_files(local_path, dropbox_path, OAuth_token):
         print 'Unable to open file {0}: {1}'.format(e.errno, e.strerror)
 
 
-def __aux_upload_parallel(xytfile, local_path, dropbox_path, dbx):
-    """
-    auxiliary function that helps upload_files_parallel() function to upload files in each process
-    :param xytfile: file name
-    :param local_path: str local source path whose files will be uploaded
-    :param dropbox_path: str dropbox's path where the file will be uploaded
-    :return: None
-    """
-    try:
-        fingptr = open(local_path+'{0}'.format(xytfile))
-        dbx.files_upload(fingptr, dropbox_path, overwrite)  # dropbox_path = /xytFiles/name.xyt
-        fingptr.close()
-    except IOError as e:
-        print 'Unable to open file {0}: {1}'.format(e.errno, e.strerror)
-    except dropbox.exceptions.ApiError:
-        print 'failed uploading files'
-
-
 def upload_files_parallel(local_path, dropbox_path, OAuth_token, num_processes=20):
     """
     uploads files from given local path to given dropbox path. Multiprocess function
@@ -80,18 +88,9 @@ def upload_files_parallel(local_path, dropbox_path, OAuth_token, num_processes=2
     for res in multiple_results:
         res.get()  # timeout=3
 
-
-def delete_content(dropbox_path, OAuth_token):
-    """
-    deletes given file/folder from dropbox
-    :param dropbox_path: str dropbox's (file/folder) path
-    :return: None
-    """
-    dbx = dropbox.dropbox.Dropbox(OAuth_token)
-    try:
-        dbx.files_delete(dropbox_path)
-    except dropbox.exceptions.ApiError:
-        print 'could not delete {0}'.format(dropbox_path)
+#
+# download methods (single & multiprocess)
+#
 
 
 def retrieve_file(dropbox_path, local_path, OAuth_token):
@@ -138,3 +137,20 @@ def retrieve_folder_parallel(dropbox_path, local_path, OAuth_token, num_processe
     # print [res.get(timeout=1) for res in multiple_results]
     for res in multiple_results:
         res.get()  # timeout=3
+
+#
+# misc methods
+#
+
+
+def delete_content(dropbox_path, OAuth_token):
+    """
+    deletes given file/folder from dropbox
+    :param dropbox_path: str dropbox's (file/folder) path
+    :return: None
+    """
+    dbx = dropbox.dropbox.Dropbox(OAuth_token)
+    try:
+        dbx.files_delete(dropbox_path)
+    except dropbox.exceptions.ApiError:
+        print 'could not delete {0}'.format(dropbox_path)
