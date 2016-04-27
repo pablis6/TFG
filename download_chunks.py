@@ -9,18 +9,6 @@ import encryption as enc
 import tarfile
 import shutil
 import time
-## quitar...
-# chunks
-'''
-dropbox_path_1 = '/pin0000-1'
-dropbox_path_2 = '/pin0000-2'
-dropbox_path_3 = '/pin0000-3'
-# tar.gz
-dropbox_path_1_dw = '/pin4444-1'  # sin slash para bajar cosas
-dropbox_path_2_dw = '/pin4444-2'
-dropbox_path_3_dw = '/pin4444-3'
-# '''
-####
 
 slash = '/'
 cmd_mindtct = './mindtct_V2 -b {0} {1}'
@@ -88,7 +76,27 @@ def __get_folders_processes(local_path, OAuth_token, dropbox_paths):
     # 2.32230401039 2.20498013496
 
 
-def download_tar(local_path, dropbox_paths ,download_q, OAuth_token, name_lis, enc_format):
+def __write_to_file(path, t_res, img_match):
+    """
+
+    :param path:
+    :param t_res:
+    :param img_match:
+    :return:
+    """
+
+    file_name = '{0}/{1}.txt'.format(path, t_res[0])  # file's name is the <terminal-id>
+    try:
+        with open(file_name, 'w') as f:
+            for data in t_res:
+                f.write('{0}\n'.format(data))
+            f.write(img_match)
+            f.close()
+    except IOError:
+        print 'couldn create the file'
+
+
+def download_tar(local_path, dropbox_paths, download_q, OAuth_token, name_lis, enc_format):
     '''
 
     :param local_path:
@@ -99,7 +107,7 @@ def download_tar(local_path, dropbox_paths ,download_q, OAuth_token, name_lis, e
     :return:
     '''
     try:
-
+        # get the files from the cloud (dropbox accouts)
         __get_folders_processes(local_path, OAuth_token, dropbox_paths)
         #  decrypts tar.gz and extract files in local_path
         enc.decrypt_chunks_parallel(local_path, enc.key_path_2, enc_format)
@@ -167,7 +175,7 @@ def extract_mindtct(source_path, extract_q, dst_path):
         extract_q.put('done')
 
 
-def compare(dir_name, local_path, read_q, q_timeout, min_value):
+def compare(dir_name, local_path, path_output, t_res, read_q, q_timeout, min_value):
     '''
 
     :param source_path:
@@ -182,15 +190,14 @@ def compare(dir_name, local_path, read_q, q_timeout, min_value):
         recv_2 = read_q.get(timeout=q_timeout)
     except q_exception.Empty:
         logging.error('timeout, no response')
-        shutil.rmtree(dir_name)  # borra carpeta...
+        shutil.rmtree(dir_name)  # remove folder...
     else:
-        #if extract != 1 and download != 1:
         if (recv_1 and recv_2) != 1:
             try:
                 results = sub.check_output([cmd_bozorth32.format(dir_name, local_path)]
                                            , shell=True)  # compare through bozorth
             except sub.CalledProcessError as e:
-                shutil.rmtree(dir_name)  # borra carpeta...
+                shutil.rmtree(dir_name)  # borrar carpeta...
                 logging.error('bozorth3 OS error')
             else:
                 # find the greatest number from the result and its index
@@ -206,44 +213,9 @@ def compare(dir_name, local_path, read_q, q_timeout, min_value):
                 print max_value
                 if min_value <= max_value:
                     print 'Match with : {0}'.format(line)  # the result, name of the greatest one
+                    __write_to_file(path_output, t_res, line)
+
         #else:
         #    logging.error('timeout, no response aqrqr') # no tiene mucho sentido ya que los metodos que prvocan lo registran
         shutil.rmtree(dir_name)  # siempre borrar
 
-
-'''
-def compare(source_path, local_path, read_q, q_timeout, min_value):
-
-    try:
-        extract = read_q.get(timeout=q_timeout)
-        download = read_q.get(timeout=q_timeout)
-    except q_exception.Empty:
-        logging.error('error sync time')
-        # borra carpeta...
-    else:
-        #if extract != 1 and download != 1:
-        if (extract and download) != 1:
-            try:
-                results = sub.check_output([cmd_bozorth3.format(source_path, local_path)]
-                                           , shell=True)  # compare with bozorth
-            except sub.CalledProcessError as e:
-                # borra carpeta...
-                logging.error('bozorth3 OS error')
-            else:
-                # find the greatest number from the result and its index
-                res_list = map(int, results.split())  # string list to int list
-
-                max_value = max(res_list)  # get greatest number
-                max_index = res_list.index(max_value)  # get its index
-                # get fingerprint's id through the (index)line number from listxyt.lis
-                line = linecache.getline('{0}listXyt.lis'.format(local_path), max_index+1)
-                #line = line[line.rfind('/')+1:line.rfind('.')]
-                line = os.path.basename(line)
-                line = line[:line.rfind('.')]
-                print max_value
-                if min_value <= max_value:
-                    print 'the match with : {0}'.format(line)  # the result, name of the greatest one
-        else:
-            # borra carpeta...
-            logging.error('timeout, no response')
-'''
