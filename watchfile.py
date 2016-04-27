@@ -9,7 +9,7 @@ from watchdog.events import LoggingEventHandler
 import download_chunks as dw
 
 # YALM
-queue_timeout = 30 # 10
+queue_timeout = 10  # 10
 log_path = 'my_log.log'
 OAuth_token = 'rrFPgdcaJP8AAAAAAAAAHbe0eiQ3StEF2OGqWTp1DM90UeAXMEzMyZCBLlOezKbs'
 OAuth_token_2 = ''
@@ -17,15 +17,18 @@ OAuth_token_3 = ''
 min_value = 30
 name_lis = 'listXyt'
 enc_format = '.aes'
-
-dropbox_paths = ('/pin4444-1', '/pin4444-2', '/pin4444-3')
-dropbox_paths_2 = ('/pin0000-1', '/pin0000-2', '/pin0000-3')
+watchdog_listening = 'watchdog_listening'
+watchdog_f = 'watchdog_forwarding'
+dropbox_paths_format = '/pin{0}-{1}'
 ###
 #local_path = 'docker/local_path/'  # local_path == f_path it is the work path ...
 
-#queue = Queue(2)
+#dropbox_paths = ('/pin4444-1', '/pin4444-2', '/pin4444-3')
+#dropbox_paths_2 = ('/pin0000-1', '/pin0000-2', '/pin0000-3')
+
 dict_q = {}
 slash = '/'
+listening_path = '{0}/{1}'
 
 
 def treat_txt_file(path_tfile):
@@ -78,8 +81,8 @@ def create_dir(t_res):
     :param t_res: tuple
     :return: False in case of error or path for success
     '''
-    # make dir with the format '<id-termial>-<pin>'
-    dir_name = '{0}-{1}'.format(t_res[0], t_res[2])
+    # make dir with the format '<id-termial>'
+    dir_name = '{0}'.format(t_res)  # -{1} , t_res[2]
     local_cmp = '{0}/local_cmp/'.format(dir_name)
     try:
         os.mkdir(dir_name)  # create dir for terminal's request, raise error if exists
@@ -91,8 +94,11 @@ def create_dir(t_res):
         return dir_name, local_cmp
 
 
-def queue_to_dict(dir_name, work_q):
-    dict_q[dir_name] = work_q
+def form_dropbox_path(pin):
+    paths = []
+    for k in range(1, 4):
+        paths.append(dropbox_paths_format.format(pin, k))
+    return paths
 
 
 class MySLoggingEventHandler4(LoggingEventHandler):
@@ -106,15 +112,18 @@ class MySLoggingEventHandler4(LoggingEventHandler):
             t_res = treat_txt_file(event.src_path)
             # in case of success: charge or register
             if t_res and t_res[1] == 'charge':
-                paths = create_dir(t_res)  # dir_name -> <id_terminal>-<pin
-                if paths:  # paths = (dir_name, local_cmp)
+                paths = create_dir(t_res[0])  # dir_name -> <id_terminal>
+                if paths:  # paths -> (dir_name, local_cmp)
                     queue = Queue(2)  # a queue per job
                     dict_q[paths[0]] = queue  # saves queue dir to dir with dir name as key
+                    # dropbox path tendrian que seguir algun formato para que lleven el pin al ser pasado ej
+                    # pin 444-> dropbox_paths => (/pin{0}-1, /pin{0}-2, /pin{0}-3)
+                    dropbox_paths = form_dropbox_path(t_res[2])  # t_res[2] pin
                     p = Process(target=dw.download_tar, args=(paths[1], dropbox_paths, queue, OAuth_token, name_lis, enc_format,))
                     p.start()
                     # hacer o no hacer join para que lo espere, afectara queue_timeout, con join no hace falta queue
 
-                    p = Process(target=dw.compare, args=(paths[0], paths[1], queue, queue_timeout, min_value,))
+                    p = Process(target=dw.compare, args=(paths[0], paths[1], watchdog_f, t_res, queue, queue_timeout, min_value,))
                     p.start()
             elif t_res:  # register
                 print 'to do register'
@@ -135,7 +144,11 @@ class MySLoggingEventHandler4(LoggingEventHandler):
         else:  # other files, formats
             os.remove(event.src_path)
 
+        #os.remove(event.src_path)  # always delete .txt or directory does not exists (timeout, txt to img), remove img
+
 if __name__ == "__main__":
+
+    #current_path.format(watchdog_listening)
     # logger
     logging.basicConfig(filename=log_path, format='%(asctime)s - %(levelname)s: (%(module)s) %(funcName)s - '
                                                         '%(message)s ', level=logging.ERROR)
@@ -143,7 +156,8 @@ if __name__ == "__main__":
     #logging.basicConfig(filename=log_path, format='%(asctime)s - %(levelname)s: (%(module)s) %(funcName)s - '
     #                                                    '%(message)s ', level=logging.WARNING)
 
-    path = sys.argv[1] if len(sys.argv) > 1 else '/home/rnov/tfg/dropboxApi/work_unit/watchdog_listening'  # watchdog
+    # '/home/rnov/tfg/dropboxApi/work_unit/watchdog_listening'
+    path = sys.argv[1] if len(sys.argv) > 1 else listening_path.format(os.getcwd(), watchdog_listening)  # watchdog
     # listening path
 
     event_handler = MySLoggingEventHandler4()  # LoggingEventHandler()
