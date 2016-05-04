@@ -4,16 +4,18 @@ import subprocess as sub
 import linecache
 import Queue as q_exception  # since queue exceptions are not available in the multiprocessing module
 import logging
-import apidropbox as drop
-import encryption as enc
 import tarfile
 import shutil
 import time
 
+import apidropbox as drop
+import encryption as enc
+
+print 'download chunks working_path : {0}'.format(os.getcwd())  #  getting the working path, just for test
 slash = '/'
-cmd_mindtct = './mindtct_V2 -b {0} {1}'
-cmd_bozorth3 = './bozorth3 -p {0} -G {1}listXyt.lis '
-cmd_bozorth32 = './bozorth3 -p {0}/{0}.xyt -G {1}listXyt.lis '
+cmd_mindtct = './mindtct_32_V2 -b {0} {1}'
+cmd_bozorth3 = './bozorth3_32 -p {0} -G {1}listXyt.lis '
+cmd_bozorth32 = './bozorth3_32 -p {0}/{0}.xyt -G {1}listXyt.lis '
 
 
 def __buid_bozorth_lis_file(local_path, name_lis):
@@ -42,7 +44,7 @@ def __extract_tarfile(input_filename, dst_path):
     :return: None
     """
 
-    with tarfile.open(dst_path+input_filename, 'r:gz') as tar:
+    with tarfile.open(dst_path + input_filename, 'r:gz') as tar:
         ar = tar.getmembers()  # get the members withing tar.gz
         tar.extractall(path=dst_path)  # extract tar.gz in given dst_path
         tar.close()
@@ -55,7 +57,7 @@ def __extract_tarfile(input_filename, dst_path):
             src_path_2 = src_path + slash + file_name  # src path files within folder
             os.rename(src_path_2, dst_path_2)  # move files
         os.rmdir(src_path)  # remove folder extracted from tar.gz
-    os.remove(dst_path+input_filename)  # removes .tar.gz once got extracted the files
+    os.remove(dst_path + input_filename)  # removes .tar.gz once got extracted the files
 
 
 def __get_folders_processes(local_path, OAuth_token, dropbox_paths):
@@ -72,7 +74,7 @@ def __get_folders_processes(local_path, OAuth_token, dropbox_paths):
 
     for p in pro_list:
         p.join()
-    print 'hey there im done {} !'.format(time.time()-test_t)
+    print 'hey there im done {} !'.format(time.time() - test_t)
     # 2.32230401039 2.20498013496
 
 
@@ -124,7 +126,7 @@ def download_tar(local_path, dropbox_paths, download_q, OAuth_token, name_lis, e
     except (OSError, IOError) as e:
         logging.error('error ')
         download_q.put(1)
-    else: # envie el path del fichero .lis
+    else:  # envie el path del fichero .lis
         download_q.put('done')
 
 
@@ -206,8 +208,8 @@ def compare(dir_name, local_path, path_output, t_res, read_q, q_timeout, min_val
                 max_value = max(res_list)  # get greatest number
                 max_index = res_list.index(max_value)  # get its index
                 # get fingerprint's id through the (index)line number from listxyt.lis
-                line = linecache.getline('{0}listXyt.lis'.format(local_path), max_index+1)
-                #line = line[line.rfind('/')+1:line.rfind('.')]
+                line = linecache.getline('{0}listXyt.lis'.format(local_path), max_index + 1)
+                # line = line[line.rfind('/')+1:line.rfind('.')]
                 line = os.path.basename(line)
                 line = line[:line.rfind('.')]
                 print max_value
@@ -215,7 +217,6 @@ def compare(dir_name, local_path, path_output, t_res, read_q, q_timeout, min_val
                     print 'Match with : {0}'.format(line)  # the result, name of the greatest one
                     __write_to_file(path_output, t_res, line)
 
-        #else:
+        # else:
         #    logging.error('timeout, no response aqrqr') # no tiene mucho sentido ya que los metodos que prvocan lo registran
         shutil.rmtree(dir_name)  # siempre borrar
-
