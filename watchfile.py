@@ -4,9 +4,14 @@ from multiprocessing import Process, Queue
 import time
 import logging
 import linecache
-from watchdog.observers import Observer
-from watchdog.events import LoggingEventHandler
-import download_chunks as dw
+# installed and custom packages
+custom_path = '{0}/{1}'
+sys.path.insert(1, custom_path.format(os.getcwd(), 'depen_packages'))  # dependency packages
+sys.path.insert(1, custom_path.format(os.getcwd(), 'payfi'))  # payfi packages with own dependence inside
+print sys.path  # paths for modules and packages
+from payfi import download_chunks as dw
+from payfi.watchdog.observers import Observer
+from payfi.watchdog.events import LoggingEventHandler
 
 # YALM
 queue_timeout = 10  # 10
@@ -28,7 +33,6 @@ dropbox_paths_format = '/pin{0}-{1}'
 
 dict_q = {}
 slash = '/'
-listening_path = '{0}/{1}'
 
 
 def treat_txt_file(path_tfile):
@@ -111,10 +115,12 @@ class MySLoggingEventHandler4(LoggingEventHandler):
             # read data and return tuple or false
             t_res = treat_txt_file(event.src_path)
             # in case of success: charge or register
+            queue = Queue(2)  # a queue per job
+            paths = create_dir(t_res[0])  # dir_name -> <id_terminal>
             if t_res and t_res[1] == 'charge':
-                paths = create_dir(t_res[0])  # dir_name -> <id_terminal>
+                #paths = create_dir(t_res[0])  # dir_name -> <id_terminal>
                 if paths:  # paths -> (dir_name, local_cmp)
-                    queue = Queue(2)  # a queue per job
+                    #queue = Queue(2)  # a queue per job
                     dict_q[paths[0]] = queue  # saves queue dir to dir with dir name as key
                     # dropbox path tendrian que seguir algun formato para que lleven el pin al ser pasado ej
                     # pin 444-> dropbox_paths => (/pin{0}-1, /pin{0}-2, /pin{0}-3)
@@ -122,10 +128,12 @@ class MySLoggingEventHandler4(LoggingEventHandler):
                     p = Process(target=dw.download_tar, args=(paths[1], dropbox_paths, queue, OAuth_token, name_lis, enc_format,))
                     p.start()
                     # hacer o no hacer join para que lo espere, afectara queue_timeout, con join no hace falta queue
-
                     p = Process(target=dw.compare, args=(paths[0], paths[1], watchdog_f, t_res, queue, queue_timeout, min_value,))
                     p.start()
+                    #time.sleep(5)
+                    #print dict_q
             elif t_res:  # register
+
                 print 'to do register'
 
             os.remove(event.src_path)  # always delete .txt
@@ -157,7 +165,7 @@ if __name__ == "__main__":
     #                                                    '%(message)s ', level=logging.WARNING)
 
     # '/home/rnov/tfg/dropboxApi/work_unit/watchdog_listening'
-    path = sys.argv[1] if len(sys.argv) > 1 else listening_path.format(os.getcwd(), watchdog_listening)  # watchdog
+    path = sys.argv[1] if len(sys.argv) > 1 else custom_path.format(os.getcwd(), watchdog_listening)  # watchdog
     # listening path
 
     event_handler = MySLoggingEventHandler4()  # LoggingEventHandler()
@@ -174,6 +182,9 @@ if __name__ == "__main__":
 
 # about 12 MB of memory
 """
+#from watchdog.observers import Observer
+#from watchdog.events import LoggingEventHandler
+
 class MySLoggingEventHandler3(LoggingEventHandler):
 
     def on_created(self, event):
