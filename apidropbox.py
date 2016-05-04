@@ -1,6 +1,8 @@
-import dropbox
 import os
 from multiprocessing import Pool, TimeoutError
+import dropbox
+
+print 'apidropbox : {0}'.format(os.getcwd())  # getting the working path, just for test
 
 # writeMode for file/folder
 overwrite = dropbox.files.WriteMode('overwrite')
