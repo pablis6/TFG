@@ -2,14 +2,22 @@ import sys
 import os
 import logging
 import time
-from watchdog.observers import Observer
-from watchdog.events import LoggingEventHandler
+
+#from watchdog.observers import Observer
+#from watchdog.events import LoggingEventHandler
+custom_path = '{0}/{1}'
+sys.path.insert(1, custom_path.format(os.getcwd(), 'depen_packages'))
+sys.path.insert(1, custom_path.format(os.getcwd(), 'payfi'))
+print sys.path
+## prueba package propio
+from payfi.watchdog.observers import Observer
+from payfi.watchdog.observers import Observer
+from payfi.watchdog.events import LoggingEventHandler
 
 watchdog_forwarding = 'watchdog_forwarding'
-listening_path = '{0}/{1}'
 
 
-class MySLoggingEventHandler_1(LoggingEventHandler):
+class MySLoggingEventHandler1(LoggingEventHandler):
 
     def on_created(self, event):
         print 'file has been created {0}'.format(event.src_path)
@@ -30,10 +38,10 @@ if __name__ == "__main__":
 
 
     # '/home/rnov/tfg/dropboxApi/work_unit/watchdog_forwarding'
-    path = sys.argv[1] if len(sys.argv) > 1 else listening_path.format(os.getcwd(), watchdog_forwarding)  # watchdog
+    path = sys.argv[1] if len(sys.argv) > 1 else custom_path.format(os.getcwd(), watchdog_forwarding)  # watchdog
     # listening path
 
-    event_handler = MySLoggingEventHandler_1()  # LoggingEventHandler()
+    event_handler = MySLoggingEventHandler1()  # LoggingEventHandler()
     observer = Observer()
     observer.schedule(event_handler, path, recursive=True)
     observer.start()
