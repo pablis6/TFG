@@ -3,10 +3,6 @@ import os
 from multiprocessing import Pool
 
 print 'encryption : {0}'.format(os.getcwd())  # getting the working path, just for test
-# subprocess.call(['./aescrypt_32', '-e', '-k', 'secret.key', 'encrypt'])
-
-key_path_1 = 'secret.key'
-key_path_2 = 'secret2.key'
 
 # split genera los ficheros en el path de donde ha sido llamado el script...
 split_path = os.getcwd()  # gets current working path, '/home/rnov/tfg/dropboxApi/work_unit'
@@ -51,28 +47,18 @@ def __aux_decrypt_file(chunk, files_path, dst_path, key_path, enc_format):
         :param key_path: str key's path
         :return: None
         """
-        #print binary
         from_path = files_path+chunk+'*'
         to_path = dst_path+chunk
 
         cat_command = '{0} > {1}.xyt{2}'.format(from_path, to_path, enc_format)  # forms cat call
         subprocess.call('cat {0}'.format(cat_command), shell=True)  # merge the chucks from one file to a file.
 
-
-        aux1 = subprocess.call('rm -f {0}{1}-*'.format(files_path, chunk), shell=True)  # removes single file's chucks
+        subprocess.call('rm -f {0}{1}-*'.format(files_path, chunk), shell=True)  # removes single file's chucks
         single_file_path = to_path+'.xyt{0}'.format(enc_format)  # file_name
 
-        aux2 = subprocess.call([binary, '-d', '-k', key_path, single_file_path])  # decrypt single file './aescrypt_32'
-        aux3 = subprocess.call('rm -f {0}{1}*{2}'.format(dst_path, chunk, enc_format), shell=True)
-        # remove .aes remaining file
-        if chunk == 'robert':
-            print chunk
-            print cat_command
-            print aux1
-            print 'single_file_path {0}'.format(single_file_path)
-            print aux2
-            print aux3# """
-        #print single_file_path
+        subprocess.call([binary, '-d', '-k', key_path, single_file_path])  # decrypt single file './aescrypt_32'
+        subprocess.call('rm -f {0}{1}*{2}'.format(dst_path, chunk, enc_format), shell=True)
+
 
 #
 # encryption methods
@@ -85,6 +71,8 @@ def encrypt_files(files_path, key_path, chunks_path, enc_format, new_name=None):
     :param files_path: str path to the directory
     :param key_path: str key's path
     :param chunks_path: str chunks's path
+    :param enc_format:
+    :param new_name:
     :return: generates one .xyt.aes file and three chunks from it.
     """
     list_files = os.listdir(files_path)
@@ -98,14 +86,6 @@ def encrypt_files(files_path, key_path, chunks_path, enc_format, new_name=None):
             name += '-'  # name's format for the chunks
             subprocess.call(['split', '-n', '3', files_path + xytfile + enc_format, chunks_path+name,
                              '--numeric-suffixes=2'])  # split the file in chunks (no deja en el mismo dir)
-    # move the chunks back to the given path
-    """
-    list_files = os.listdir(split_path)  # split_path -> current working path, where chunks are generated
-    for chunks in list_files:
-        if chunks.rfind('-0') > -1:
-            #print chunks
-            print subprocess.call(['mv', '-f', split_path+chunks, chunks_path+chunks])
-    #"""
 
 
 def encrypt_chunks_tar(chunks_path, key_path, suffix):
@@ -113,10 +93,10 @@ def encrypt_chunks_tar(chunks_path, key_path, suffix):
     encrypts files (chunks of a file/s) in a given directory with a given key
     :param chunks_path: str directory's path
     :param key_path: str key's path
+    :param suffix: str
     :return: None
     """
     listFiles = os.listdir(chunks_path)
-    #suffix = '-0'  # needed suffix for the files to be processed
     for chunks_file in listFiles:
         if chunks_file.rfind(suffix) > 1:  # while the file has the suffix and it is not in the first position
             subprocess.call([binary, '-e', '-k', key_path, chunks_path+chunks_file])  # './aescrypt_32'
@@ -132,6 +112,7 @@ def decrypt_chunks(files_path, key_path_chunk, enc_format, dst_path=None):
     decrypts chunk files from given path to given directory
     :param files_path: str chunks's path
     :param key_path_chunk: str key's path
+    :param enc_format:
     :param dst_path: str destiny file path
     :return: None
     """
@@ -151,6 +132,7 @@ def decrypt_chunks_parallel(files_path, key_path_chunk, enc_format, dst_path=Non
     decrypts chunk files from given path to given directory/ies
     :param files_path: str source path
     :param key_path_chunk: str key's path
+    :param enc_format:
     :param dst_path: str destiny file path
     :return: None
     """
@@ -172,6 +154,7 @@ def decrypt_to_file(files_path, key_path, enc_format, dst_path=None):
     decrypts and merges chunks from given path to given directory with a given key
     :param files_path: str chunks source path
     :param key_path: str key's path
+    :param enc_format:
     :param dst_path: str destiny path
     :return: None
     """
@@ -188,6 +171,7 @@ def decrypt_to_file_parallel(files_path, key_path, enc_format, dst_path=None):
     decrypts and merges chunks from given path to given directory with a given key. Multiprocess function
     :param files_path: str chunks source path
     :param key_path: str key's path
+    :param enc_format:
     :param dst_path: str destiny path
     :return: None
     """
