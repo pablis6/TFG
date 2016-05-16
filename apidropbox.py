@@ -1,5 +1,6 @@
 import os
 from multiprocessing import Pool, TimeoutError
+import logging
 import dropbox
 
 print 'apidropbox : {0}'.format(os.getcwd())  # getting the working path, just for test
@@ -15,7 +16,7 @@ overwrite = dropbox.files.WriteMode('overwrite')
 def __aux_upload_parallel(xytfile, local_path, dropbox_path, dbx):
     """
     auxiliary function that helps upload_files_parallel() function to upload files in each process
-    :param xytfile: file name
+    :param xytfile: str file name
     :param local_path: str local source path whose files will be uploaded
     :param dropbox_path: str dropbox's path where the file will be uploaded
     :return: None
@@ -27,7 +28,7 @@ def __aux_upload_parallel(xytfile, local_path, dropbox_path, dbx):
     except IOError as e:
         print 'Unable to open file {0}: {1}'.format(e.errno, e.strerror)
     except dropbox.exceptions.ApiError:
-        print 'failed uploading files'
+        logging.error('failed uploading files')
 
 #
 # upload methods (single & multiprocess)
@@ -36,9 +37,10 @@ def __aux_upload_parallel(xytfile, local_path, dropbox_path, dbx):
 
 def upload_file(local_path, dropbox_path, OAuth_token):
     """
-    uploads single file from a given local path to given dropbox path, files up to 150 MB
-    :param local_path: str source path
-    :param dropbox_path: destiny dropbox path
+    uploads single file from a given local path to given remote one (dropbox), files up to 150 MB
+    :param local_path: str path to the file which will be uploaded
+    :param dropbox_path: str destiny remote path
+    :param OAuth_token: str authentication token needed to establish a remote connection
     :return: None
     """
     dbx = dropbox.dropbox.Dropbox(OAuth_token)
@@ -48,15 +50,15 @@ def upload_file(local_path, dropbox_path, OAuth_token):
         dbx.files_upload(fingptr_obj, dropbox_path+file_name, overwrite)  # dropbox_path = /xytFiles/
         fingptr_obj.close()  # close the file
     except dropbox.exceptions.ApiError:
-    #except dropbox.exceptions:
-        print 'failed uploading files'
+        logging.error('failed uploading files')
 
 
 def upload_files(local_path, dropbox_path, OAuth_token):
     """
-    uploads files from given local path to given dropbox path
+    uploads files from given local path to given remote one (dropbox), files up to 150 MB each
     :param local_path: str local source path whose files will be uploaded
     :param dropbox_path: str dropbox's path where the file will be uploaded
+    :param OAuth_token: str authentication token needed to establish a remote connection
     :return: None
     """
     dbx = dropbox.dropbox.Dropbox(OAuth_token)
@@ -64,21 +66,22 @@ def upload_files(local_path, dropbox_path, OAuth_token):
         listFiles = os.listdir(local_path)
         for xytfile in listFiles:
             fingptr = open(local_path+'{0}'.format(xytfile))
-            #print fingptr
             dbx.files_upload(fingptr, dropbox_path+xytfile, overwrite)  # dropbox_path = /xytFiles/
             fingptr.close()
     except dropbox.exceptions.ApiError:
-        print 'failed uploading files'
+        logging.error('failed uploading files')
     except IOError as e:
-        print 'Unable to open file {0}: {1}'.format(e.errno, e.strerror)
+        logging.error('Unable to open file {0}: {1}'.format(e.errno, e.strerror))
 
 
 def upload_files_parallel(local_path, dropbox_path, OAuth_token, num_processes=20):
     """
-    uploads files from given local path to given dropbox path. Multiprocess function
+    uploads files from given local path to given remote one (dropbox). Multiprocess function
     :param local_path: str local source path whose files will be uploaded
     :param dropbox_path: str dropbox's path where the file will be uploaded
-    :param num_processes: number of processes to be launched
+    :param OAuth_token: str authentication token needed to establish a remote connection
+    :param num_processes: int number of parallel process launched simultaneously
+            each process makes a connection and uploads a single data object at a time.
     :return: None
     """
     dbx = dropbox.dropbox.Dropbox(OAuth_token)
@@ -86,7 +89,6 @@ def upload_files_parallel(local_path, dropbox_path, OAuth_token, num_processes=2
     list_files = os.listdir(local_path)  # file's names in the given path
     multiple_results = [pool.apply_async(__aux_upload_parallel, (xyt_name, local_path, dropbox_path+xyt_name, dbx))
                         for xyt_name in list_files]
-    #print multiple_results
     for res in multiple_results:
         res.get()  # timeout=3
 
@@ -97,16 +99,17 @@ def upload_files_parallel(local_path, dropbox_path, OAuth_token, num_processes=2
 
 def retrieve_file(dropbox_path, local_path, OAuth_token):
     """
-    downloads a single file
-    :param local_path: str path/file.format'
-    :param dropbox_path: str '/folder/file.format'
+    downloads a single file from a given remote path(dropbox) to a local one.
+    :param local_path: str local path where the file will be saved, path/file.format'
+    :param dropbox_path: str path(remote) to the data '/folder/file.format'
+    :param OAuth_token: str authentication token needed to establish a remote connection
     :return: None
     """
     dbx = dropbox.dropbox.Dropbox(OAuth_token)
     try:
         dbx.files_download_to_file(local_path, dropbox_path)
     except dropbox.files.DownloadError:
-        print 'failed to download {0}'.format(dropbox_path)
+        logging.error('failed to download {0}'.format(dropbox_path))
 
 
 def retrieve_folder(local_path, dropbox_path, OAuth_token):
@@ -114,6 +117,7 @@ def retrieve_folder(local_path, dropbox_path, OAuth_token):
     downloads files from a given dropbox's folder to a given local path
     :param local_path: str path to be saved the files
     :param dropbox_path: str dropbox path
+    :param OAuth_token: str authentication token needed to establish a remote connection
     :return: None
     """
     dbx = dropbox.dropbox.Dropbox(OAuth_token)
@@ -126,17 +130,18 @@ def retrieve_folder_parallel(dropbox_path, local_path, OAuth_token, num_processe
     """
     downloads files from given dropbox's folder to a given local path. Multiprocess function
     :param dropbox_path: str dropbox path
-    :param local_path: str
-    :param num_processes int
+    :param local_path: str path
+    :param OAuth_token: str authentication token needed to establish a remote connection
+    :param num_processes int number of parallel process launched simultaneously
+            each process makes a connection and retrieves a single data object at a time.
     :return: None
     """
     dbx = dropbox.dropbox.Dropbox(OAuth_token)
     folder = dbx.files_list_folder(dropbox_path)
     pool = Pool(processes=num_processes,)
     files_info = [(i.name, i.path_lower) for i in folder.entries]  # filesInfo: (filename, filepath)
-    #  print files_info
+
     multiple_results = [pool.apply_async(retrieve_file, (k[1], local_path+k[0], OAuth_token)) for k in files_info]
-    # print [res.get(timeout=1) for res in multiple_results]
     for res in multiple_results:
         res.get()  # timeout=3
 
@@ -149,10 +154,11 @@ def delete_content(dropbox_path, OAuth_token):
     """
     deletes given file/folder from dropbox
     :param dropbox_path: str dropbox's (file/folder) path
+    :param OAuth_token: str authentication token needed to establish a remote connection
     :return: None
     """
     dbx = dropbox.dropbox.Dropbox(OAuth_token)
     try:
         dbx.files_delete(dropbox_path)
     except dropbox.exceptions.ApiError:
-        print 'could not delete {0}'.format(dropbox_path)
+        logging.error('could not delete {0}'.format(dropbox_path))
