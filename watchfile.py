@@ -13,6 +13,9 @@ from payfi import download_chunks as dw
 from payfi.watchdog.observers import Observer
 from payfi.watchdog.events import LoggingEventHandler
 
+import apidropbox as drop
+#drop.upload_file('/home/rnov/tfg/dropboxApi/work_unit/71022/local_cmp/robert-02', '/pin9999-1/', 'rrFPgdcaJP8AAAAAAAAAHbe0eiQ3StEF2OGqWTp1DM90UeAXMEzMyZCBLlOezKbs')
+
 # YALM
 queue_timeout = 10  # 10
 log_path = 'my_log.log'
@@ -53,7 +56,8 @@ def treat_txt_file(path_tfile):
         t_res = (id_terminal, t_op, pin, amount)
     elif t_op == 'register':
         usr_name = linecache.getline(path_tfile, 4).rstrip()
-        t_res = (id_terminal, t_op, pin, usr_name)
+        id_usr = linecache.getline(path_tfile, 5).rstrip()
+        t_res = (id_terminal, t_op, pin, usr_name, id_usr)
         #  other data
     else:
         return False
@@ -80,11 +84,11 @@ def treat_img(path_file):
 
 
 def create_dir(t_res):
-    '''
+    """
     create directories for a single operation.
     :param t_res: tuple
     :return: False in case of error or path for success
-    '''
+    """
     # make dir with the format '<id-termial>'
     dir_name = '{0}'.format(t_res)  # -{1} , t_res[2]
     local_cmp = '{0}/local_cmp/'.format(dir_name)
@@ -130,15 +134,21 @@ class MySLoggingEventHandler4(LoggingEventHandler):
                     # hacer o no hacer join para que lo espere, afectara queue_timeout, con join no hace falta queue
                     p = Process(target=dw.compare, args=(paths[0], paths[1], watchdog_f, t_res, queue, queue_timeout, min_value,))
                     p.start()
-                    #time.sleep(5)
                     #print dict_q
             elif t_res:  # register
+                if paths:  # paths -> (dir_name, local_cmp)
+                    dict_q[paths[0]] = queue  # saves queue dir to dir with dir name as key
 
-                print 'to do register'
+                    dropbox_paths = form_dropbox_path(t_res[2])  # t_res[2] pin
+                    p = Process(target=dw.download_tar_up, args=(paths[1], dropbox_paths, queue, OAuth_token, enc_format,))
+                    p.start()
+
+                    p = Process(target=dw.upload_tar, args=(paths, queue, queue_timeout, 3, '', enc_format, t_res, dropbox_paths_format, OAuth_token,))
+                    p.start()
 
             os.remove(event.src_path)  # always delete .txt
 
-        elif file_format == ('.png' or '.jpg'):
+        elif file_format == '.png' or '.jpg':
             dir_name = treat_img(event.src_path)  # dir_name -> <id_terminal>-<pin>
             if dir_name:  # the folder exist, proceed...
                 # get queue object form the dictionary ...
@@ -181,46 +191,7 @@ if __name__ == "__main__":
 
 
 # about 12 MB of memory
-"""
-#from watchdog.observers import Observer
-#from watchdog.events import LoggingEventHandler
 
-class MySLoggingEventHandler3(LoggingEventHandler):
-
-    def on_created(self, event):
-        print 'file has been created {0}'.format(event.src_path)
-        file_format = event.src_path[event.src_path.rfind('.'):]  # finds the last point.
-        if file_format == '.txt':
-
-            # read data and return tuple or false
-            t_res = treat_txt_file(event.src_path)
-            # in case of success: charge or register
-            if t_res and t_res[1] == 'charge':
-                dir_name, local_cmp = create_dir(t_res)
-                if local_cmp:
-                    p = Process(target=dw.download_tar, args=(local_cmp, queue, OAuth_token, name_lis, enc_format,))
-                    p.start()
-                    # hacer o no hacer join para que lo espere, afectara queue_timeout, con join no hace falta queue
-                    #print 'at the end should send a signal to start comparing'
-
-                    p = Process(target=dw.compare, args=(dir_name, local_cmp, queue, queue_timeout, min_value,))
-                    p.start()
-            elif t_res:  # register
-                print 'to do register'
-
-            os.remove(event.src_path)  # always delete .txt
-
-        elif file_format == ('.png' or '.jpg'):
-            dst_path = treat_img(event.src_path)
-            if dst_path:  # the folder exist, proceed...
-                p = Process(target=dw.extract_mindtct, args=(event.src_path, queue, dst_path))
-                p.start()
-            else:  # directory does not exists (timeout, txt to img), remove img
-                os.remove(event.src_path)
-
-        else:  # other files, formats
-            os.remove(event.src_path)
-"""""
 
     #logging.basicConfig(level=logging.INFO,
     #                    format='%(asctime)s - %(message)s',
