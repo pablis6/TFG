@@ -6,16 +6,37 @@ import Queue as q_exception  # since queue exceptions are not available in the m
 import logging
 import tarfile
 import shutil
+import sys
 import time
 
 import apidropbox as drop
 import encryption as enc
 
 print 'download chunks working_path : {0}'.format(os.getcwd())  #  getting the working path, just for test
+
+is_64bits = sys.maxsize > 2**32
+
+# determina si es 32 o 64 y elige los binarios
+if is_64bits:
+    enc.binary = './aescrypt_64'
+    print 'im x86_64 bit system'
+    cmd_mindtct = './mindtct_32_V2 -b {0} {1}'  # mindtct_64
+    cmd_bozorth3 = './bozorth3_64 -p {0} -G {1}listXyt.lis '
+    cmd_bozorth32 = './bozorth3_64 -p {0}/{0}.xyt -G {1}listXyt.lis '
+else:
+    enc.binary = './aescrypt_32'
+    print 'im i386 (32 bit) system'
+    cmd_mindtct = './mindtct_32_V2 -b {0} {1}'
+    cmd_bozorth3 = './bozorth3_32 -p {0} -G {1}listXyt.lis '
+    cmd_bozorth32 = './bozorth3_32 -p {0}/{0}.xyt -G {1}listXyt.lis '
+
 slash = '/'
-cmd_mindtct = './mindtct_32_V2 -b {0} {1}'
-cmd_bozorth3 = './bozorth3_32 -p {0} -G {1}listXyt.lis '
-cmd_bozorth32 = './bozorth3_32 -p {0}/{0}.xyt -G {1}listXyt.lis '
+suffix_chunk_tar = '.tar.gz'
+tar_name = '{0}{1}%{2}{3}'
+
+#
+# private aux. methods
+#
 
 
 def __buid_bozorth_lis_file(local_path, name_lis):
@@ -36,14 +57,13 @@ def __buid_bozorth_lis_file(local_path, name_lis):
         # devuelva el path del fichero .lis
 
 
-def __extract_tarfile(input_filename, dst_path):
+def __extract_tarfile(input_filename, dst_path, upload=None):
     """
     extract files from tar.gz file, same source and destiny path.
     :param intput_filename: str tar.gz file name
     :param dst_path: str path to tar.gz and destiny path to extract.
     :return: None
     """
-
     with tarfile.open(dst_path + input_filename, 'r:gz') as tar:
         ar = tar.getmembers()  # get the members withing tar.gz
         tar.extractall(path=dst_path)  # extract tar.gz in given dst_path
@@ -52,11 +72,13 @@ def __extract_tarfile(input_filename, dst_path):
         src_path = dst_path + slash + ar.name  # dst_path with folder within the tar.gz
         files = os.listdir(src_path)  # list files withing folder tar.gz
 
-        for file_name in files:
-            dst_path_2 = dst_path + slash + file_name  # dst path for files within folder
-            src_path_2 = src_path + slash + file_name  # src path files within folder
-            os.rename(src_path_2, dst_path_2)  # move files
-        os.rmdir(src_path)  # remove folder extracted from tar.gz
+        if not upload:
+            for file_name in files:
+                dst_path_2 = dst_path + slash + file_name  # dst path for files within folder
+                src_path_2 = src_path + slash + file_name  # src path files within folder
+                os.rename(src_path_2, dst_path_2)  # move files
+            os.rmdir(src_path)  # remove folder extracted from tar.gz
+
     os.remove(dst_path + input_filename)  # removes .tar.gz once got extracted the files
 
 
@@ -64,7 +86,7 @@ def __get_folders_processes(local_path, OAuth_token, dropbox_paths):
     # OAuth_token, dropbox_paths son lista una capeta por cuenta
     # nota: no se puede implementar como un pool de procesos pq esto no pueden lanzar otros procesos(
     # daemonic processes are not allowed to have children ) se podria si se cambia en el modulo de daemonic= yes a no
-    # pero hace el codigo no reutilizabel
+    # pero hace el codigo no reutilizable
     pro_list = []
     test_t = time.time()
     for path in dropbox_paths:
@@ -98,6 +120,22 @@ def __write_to_file(path, t_res, img_match):
         print 'couldn create the file'
 
 
+def __make_tarfile(output_filename, source_dir):
+    """
+    creates tar.gz file
+    :param output_filename: str tar.gz file name
+    :param source_dir: str given directory where the files come from
+    :return: none
+    """
+    with tarfile.open(output_filename, 'w:gz') as tar:
+        tar.add(source_dir, arcname=os.path.basename(source_dir))
+        tar.close()
+
+#
+# charge methods
+#
+
+
 def download_tar(local_path, dropbox_paths, download_q, OAuth_token, name_lis, enc_format):
     '''
 
@@ -112,21 +150,21 @@ def download_tar(local_path, dropbox_paths, download_q, OAuth_token, name_lis, e
         # get the files from the cloud (dropbox accouts)
         __get_folders_processes(local_path, OAuth_token, dropbox_paths)
         #  decrypts tar.gz and extract files in local_path
-        enc.decrypt_chunks_parallel(local_path, enc.key_path_2, enc_format)
+        enc.decrypt_chunks_parallel(local_path, enc.key_path_2, enc_format)  # is_64bits
         files = os.listdir(local_path)
         for file_name in files:
             if file_name.rfind('.tar.gz'):
                 __extract_tarfile(file_name, local_path)
 
         # merges and decrypts files
-        enc.decrypt_to_file_parallel(local_path, enc.key_path_1, enc_format)
+        enc.decrypt_to_file_parallel(local_path, enc.key_path_1, enc_format)  # is_64bits
         # build the file .lis
         __buid_bozorth_lis_file(local_path, name_lis)
 
     except (OSError, IOError) as e:
         logging.error('error ')
         download_q.put(1)
-    else:  # envie el path del fichero .lis
+    else:
         download_q.put('done')
 
 
@@ -145,8 +183,8 @@ def download_chunks(local_path, dropbox_paths, download_q, OAuth_token, name_lis
         # get the files from the cloud (dropbox accouts)
         __get_folders_processes(local_path, OAuth_token, dropbox_paths)
         # decrypt
-        enc.decrypt_chunks_parallel(local_path, enc.key_path_2, enc_format)
-        enc.decrypt_to_file_parallel(local_path, enc.key_path_1, enc_format)
+        enc.decrypt_chunks_parallel(local_path, enc.key_path_2, enc_format)  # is_64bits
+        enc.decrypt_to_file_parallel(local_path, enc.key_path_1, enc_format)  # is_64bits
         # build the file .lis
         __buid_bozorth_lis_file(local_path, name_lis)
 
@@ -155,26 +193,6 @@ def download_chunks(local_path, dropbox_paths, download_q, OAuth_token, name_lis
         download_q.put(1)
     else:
         download_q.put('done')
-
-
-def extract_mindtct(source_path, extract_q, dst_path):
-    '''
-    extracts minutaie from an img and saves the output in a given path
-    :param source_path: str img path
-    :param extract_q: queue to signal another process.
-    :param dst_path: str path to be placed the output (.xyt and .brw)
-    :return: None
-    '''
-    try:
-        relative_path = '{0}/{0}'.format(dst_path)
-        cmd = cmd_mindtct.format(source_path, relative_path)
-        os.system(cmd)
-        os.remove(source_path)  # removes the image
-    except OSError as e:
-        logging.error('mindtct_V2 OS error')
-        extract_q.put(1)
-    else:
-        extract_q.put('done')
 
 
 def compare(dir_name, local_path, path_output, t_res, read_q, q_timeout, min_value):
@@ -220,3 +238,90 @@ def compare(dir_name, local_path, path_output, t_res, read_q, q_timeout, min_val
         # else:
         #    logging.error('timeout, no response aqrqr') # no tiene mucho sentido ya que los metodos que prvocan lo registran
         shutil.rmtree(dir_name)  # siempre borrar
+
+#
+# register methods
+#
+
+
+def download_tar_up(local_path, dropbox_paths, download_q, OAuth_token, enc_format):
+
+    try:
+        # get the files from the cloud (dropbox accouts)
+        __get_folders_processes(local_path, OAuth_token, dropbox_paths)
+        #  decrypts tar.gz and extract files in local_path
+        enc.decrypt_chunks_parallel(local_path, enc.key_path_2, enc_format)  # is_64bits
+        files = os.listdir(local_path)
+        for file_name in files:
+            if file_name.rfind('.tar.gz'):
+                __extract_tarfile(file_name, local_path, True)
+
+    except (OSError, IOError) as e:
+        logging.error('error ')
+        download_q.put(1)
+    else:
+        download_q.put('done')
+
+
+def upload_tar(paths, read_q, q_timeout, n_chunks, suf, enc_format, t_res, dropbox_paths_format, OAuth_token):
+
+    suf = (2, 3, 4)
+    try:
+        recv_1 = read_q.get(timeout=q_timeout)
+        recv_2 = read_q.get(timeout=q_timeout)
+    except q_exception.Empty:
+        logging.error('timeout, no response')
+        shutil.rmtree(paths[0])  # remove folder...
+    else:
+        if (recv_1 and recv_2) != 1:
+            # treat the img given img. (rename it?), encrypt it, split.
+            enc.encrypt_files(paths[0]+slash, enc.key_path_1, paths[1], enc_format, t_res[3]+t_res[4])  # t_res[3] name
+
+            # moves  the generated chunks to the chunk's folders
+            for i in range(0, n_chunks):
+                end = suf[i]
+                #print 'mv {0}*-0{2} {0}chunk{1}'.format(paths[1], i, end)
+                sub.call('mv {0}*-0{2} {0}chunk{1}'.format(paths[1], i+1, end), shell=True)
+
+            # create tar.gz (name format : <pin>%<part>.tar.gz)
+            for index, up_path in enumerate(os.listdir(paths[1])):  # name
+                __make_tarfile(tar_name.format(paths[1], t_res[2], index+1, suffix_chunk_tar), paths[1] + up_path)
+
+            # encrypt tar.gz
+            enc.encrypt_chunks_tar(paths[1], enc.key_path_2, suffix_chunk_tar)
+
+            # upload encrypted files (it overwrites files with same name and format in dropbox)
+            #print [i for i in os.listdir(paths[1]) if i.find(enc_format) > -1]
+            tar_aes_path = [(i, i[i.find('%')+1:i.find(suffix_chunk_tar)]) for i in os.listdir(paths[1]) if i.find(enc_format) > -1]
+
+            #print tar_aes_path
+            # dropbox_paths_format = '/pin{0}-{1}'
+            for k in tar_aes_path:
+                drop.upload_file(paths[1] + k[0], dropbox_paths_format.format(t_res[2], k[1]+slash), OAuth_token)
+
+        shutil.rmtree(paths[0])  # siempre borrar
+
+#
+# extract img method
+#
+
+
+def extract_mindtct(source_path, extract_q, dst_path):
+    '''
+    extracts minutaie from an img and saves the output in a given path
+    :param source_path: str img path
+    :param extract_q: queue to signal another process.
+    :param dst_path: str path to be placed the output (.xyt and .brw)
+    :return: None
+    '''
+    try:
+        relative_path = '{0}/{0}'.format(dst_path)
+        cmd = cmd_mindtct.format(source_path, relative_path)
+        os.system(cmd)
+        os.remove(source_path)  # removes the image
+    except OSError as e:
+        logging.error('mindtct_V2 OS error')
+        extract_q.put(1)
+    else:
+        extract_q.put('done')
+
