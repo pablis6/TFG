@@ -84,7 +84,7 @@ def upload_files_parallel(local_path, dropbox_path, OAuth_token, num_processes=2
     dbx = dropbox.dropbox.Dropbox(OAuth_token)
     pool = Pool(processes=num_processes)
     list_files = os.listdir(local_path)  # file's names in the given path
-    multiple_results = [pool.apply_async(__aux_upload_parallel, (xyt_name, local_path, dropbox_path+xyt_name))
+    multiple_results = [pool.apply_async(__aux_upload_parallel, (xyt_name, local_path, dropbox_path+xyt_name, dbx))
                         for xyt_name in list_files]
     #print multiple_results
     for res in multiple_results:
