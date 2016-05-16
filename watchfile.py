@@ -14,25 +14,31 @@ from payfi.watchdog.observers import Observer
 from payfi.watchdog.events import LoggingEventHandler
 
 import apidropbox as drop
-#drop.upload_file('/home/rnov/tfg/dropboxApi/work_unit/71022/local_cmp/robert-02', '/pin9999-1/', 'rrFPgdcaJP8AAAAAAAAAHbe0eiQ3StEF2OGqWTp1DM90UeAXMEzMyZCBLlOezKbs')
 
 # YALM
+#OAuth_token = '' #rrFPgdcaJP8AAAAAAAAAHbe0eiQ3StEF2OGqWTp1DM90UeAXMEzMyZCBLlOezKbs'
+tuple_OAuth_tokens = ('g9v4nKGHL1AAAAAAAAAACI7x1nGdAFjNHEeXLB93T80is3H04fgW4yPSrWPo3p4G',
+                      'Dje3CIzHuOAAAAAAAAAACL-yvI_lqmnW9HgGQk46BG9zePyRo4XCZqekaCLrnj6a',
+                      'rj1CTnJjZCAAAAAAAAAACKNQ8jbj6sFomd6yJzRVuwpBmJwmpZwhPAbXZKj_mT-q')
+# local constant variables
 queue_timeout = 10  # 10
-log_path = 'my_log.log'
-OAuth_token = 'rrFPgdcaJP8AAAAAAAAAHbe0eiQ3StEF2OGqWTp1DM90UeAXMEzMyZCBLlOezKbs'
-OAuth_token_2 = ''
-OAuth_token_3 = ''
 min_value = 30
+key_path_1 = 'secret.key'
+key_path_2 = 'secret2.key'
+# local names, formats & extensions
+log_path = 'my_log.log'
 name_lis = 'listXyt'
 enc_format = '.aes'
+suffix_chunk_tar = '.tar.gz'
 watchdog_listening = 'watchdog_listening'
 watchdog_f = 'watchdog_forwarding'
+# remote (dropbox cloud) names & formats
 dropbox_paths_format = '/pin{0}-{1}'
+dropbox_tar_format = '{0}{1}%{2}{3}'
 ###
 #local_path = 'docker/local_path/'  # local_path == f_path it is the work path ...
-
 #dropbox_paths = ('/pin4444-1', '/pin4444-2', '/pin4444-3')
-#dropbox_paths_2 = ('/pin0000-1', '/pin0000-2', '/pin0000-3')
+
 
 dict_q = {}
 slash = '/'
@@ -56,9 +62,12 @@ def treat_txt_file(path_tfile):
         t_res = (id_terminal, t_op, pin, amount)
     elif t_op == 'register':
         usr_name = linecache.getline(path_tfile, 4).rstrip()
-        id_usr = linecache.getline(path_tfile, 5).rstrip()
-        t_res = (id_terminal, t_op, pin, usr_name, id_usr)
-        #  other data
+        surname = linecache.getline(path_tfile, 5).rstrip()
+        family = linecache.getline(path_tfile, 6).rstrip()
+        id_usr = linecache.getline(path_tfile, 7).rstrip()
+        mail = linecache.getline(path_tfile, 8).rstrip()
+        tlf_num = linecache.getline(path_tfile, 9).rstrip()
+        t_res = (id_terminal, t_op, pin, usr_name, surname, family, id_usr, mail, tlf_num)
     else:
         return False
 
@@ -103,9 +112,14 @@ def create_dir(t_res):
 
 
 def form_dropbox_path(pin):
+    '''
+    forms a list with the folder's names in dropbox, (ord list 1,2,3..)
+    :param pin: int required to form the folder's name
+    :return: lst list with names
+    '''
     paths = []
-    for k in range(1, 4):
-        paths.append(dropbox_paths_format.format(pin, k))
+    for index, value in enumerate(range(1, 4)):
+        paths.append((dropbox_paths_format.format(pin, value), tuple_OAuth_tokens[index]))
     return paths
 
 
@@ -127,23 +141,29 @@ class MySLoggingEventHandler4(LoggingEventHandler):
                     #queue = Queue(2)  # a queue per job
                     dict_q[paths[0]] = queue  # saves queue dir to dir with dir name as key
                     # dropbox path tendrian que seguir algun formato para que lleven el pin al ser pasado ej
-                    # pin 444-> dropbox_paths => (/pin{0}-1, /pin{0}-2, /pin{0}-3)
-                    dropbox_paths = form_dropbox_path(t_res[2])  # t_res[2] pin
-                    p = Process(target=dw.download_tar, args=(paths[1], dropbox_paths, queue, OAuth_token, name_lis, enc_format,))
+                    # pin 4444-> dropbox_paths => (/pin{0}-1, /pin{0}-2, /pin{0}-3)
+                    dropbox_paths = form_dropbox_path(t_res[2])
+                    p = Process(target=dw.download_tar, args=(paths[1], dropbox_paths, queue, name_lis, enc_format,
+                                                              suffix_chunk_tar, key_path_1, key_path_2,))
+
                     p.start()
                     # hacer o no hacer join para que lo espere, afectara queue_timeout, con join no hace falta queue
-                    p = Process(target=dw.compare, args=(paths[0], paths[1], watchdog_f, t_res, queue, queue_timeout, min_value,))
+                    p = Process(target=dw.compare, args=(paths[0], paths[1], watchdog_f, t_res, queue, queue_timeout,
+                                                         min_value, name_lis,))
                     p.start()
-                    #print dict_q
+
             elif t_res:  # register
                 if paths:  # paths -> (dir_name, local_cmp)
                     dict_q[paths[0]] = queue  # saves queue dir to dir with dir name as key
 
-                    dropbox_paths = form_dropbox_path(t_res[2])  # t_res[2] pin
-                    p = Process(target=dw.download_tar_up, args=(paths[1], dropbox_paths, queue, OAuth_token, enc_format,))
+                    dropbox_paths = form_dropbox_path(t_res[2])
+                    p = Process(target=dw.download_tar_up, args=(paths[1], dropbox_paths, queue, enc_format,
+                                                                 suffix_chunk_tar, key_path_2,))
                     p.start()
 
-                    p = Process(target=dw.upload_tar, args=(paths, queue, queue_timeout, 3, '', enc_format, t_res, dropbox_paths_format, OAuth_token,))
+                    p = Process(target=dw.upload_tar, args=(paths, queue, queue_timeout, 3, '', enc_format, t_res,
+                                                            dropbox_paths_format, suffix_chunk_tar, dropbox_tar_format,
+                                                            key_path_1, key_path_2, tuple_OAuth_tokens,))
                     p.start()
 
             os.remove(event.src_path)  # always delete .txt
@@ -161,8 +181,6 @@ class MySLoggingEventHandler4(LoggingEventHandler):
 
         else:  # other files, formats
             os.remove(event.src_path)
-
-        #os.remove(event.src_path)  # always delete .txt or directory does not exists (timeout, txt to img), remove img
 
 if __name__ == "__main__":
 
@@ -196,3 +214,10 @@ if __name__ == "__main__":
     #logging.basicConfig(level=logging.INFO,
     #                    format='%(asctime)s - %(message)s',
     #                    datefmt='%Y-%m-%d %H:%M:%S')
+'''
+def form_dropbox_path(pin):
+    paths = []
+    for k in range(1, 4):
+        paths.append(dropbox_paths_format.format(pin, k))
+    return paths
+    '''
