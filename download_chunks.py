@@ -14,21 +14,20 @@ import encryption as enc
 
 print 'download chunks working_path : {0}'.format(os.getcwd())  # getting the working path, just for test
 
+#  checks sistem arch in order to choose binaries
 is_64bits = sys.maxsize > 2**32
-
-# determina si es 32 o 64 y elige los binarios
 if is_64bits:
-    enc.binary = './aescrypt_64'
     print 'im x86_64 bit system'
-    cmd_mindtct = './mindtct_32_V2 -b {0} {1}'  # mindtct_64
-    cmd_bozorth3 = './bozorth3_64 -p {0} -G {1}listXyt.lis '
-    cmd_bozorth32 = './bozorth3_64 -p {0}/{0}.xyt -G {1}listXyt.lis '
+    enc.binary = './aescrypt_64'
+    cmd_mindtct = './mindtct_64_V2 -b {0} {1}'
+    #cmd_bozorth3 = './bozorth3_64 -p {0} -G {1}listXyt.lis '
+    cmd_bozorth3 = './bozorth3_64 -p {0}/{0}.xyt -G {1}listXyt.lis '
 else:
-    enc.binary = './aescrypt_32'
     print 'im i386 (32 bit) system'
+    enc.binary = './aescrypt_32'
     cmd_mindtct = './mindtct_32_V2 -b {0} {1}'
-    cmd_bozorth3 = './bozorth3_32 -p {0} -G {1}listXyt.lis '
-    cmd_bozorth32 = './bozorth3_32 -p {0}/{0}.xyt -G {1}listXyt.lis '
+    #cmd_bozorth3 = './bozorth3_32 -p {0} -G {1}listXyt.lis '
+    cmd_bozorth3 = './bozorth3_32 -p {0}/{0}.xyt -G {1}listXyt.lis '
 
 slash = '/'
 
@@ -48,7 +47,7 @@ def __buid_bozorth_lis_file(local_path, name_lis):
     files = os.listdir(local_path)  # local_cmp/
     files = ['{0}{1}\n'.format(local_path, i) for i in files]  # add the path to the files (relative to .py)
     # open, mind the mode
-    with open('{0}/{1}.lis'.format(local_path, name_lis), 'w') as f:  # fix path, writes path's files to listXyt.lis
+    with open('{0}/{1}'.format(local_path, name_lis), 'w') as f:  # fix path, writes path's files to listXyt.lis
         for path in files:
             f.write(path)
         f.close()
@@ -79,8 +78,13 @@ def __extract_tarfile(input_filename, dst_path, upload=None):
     os.remove(dst_path + input_filename)  # removes .tar.gz once got extracted the files
 
 
-def __get_folders_processes_2(local_path, dropbox_paths):
+def __get_folders_processes(local_path, dropbox_paths):
+    """
 
+    :param local_path:
+    :param dropbox_paths:
+    :return:
+    """
     pro_list = []
     test_t = time.time()
     for path, OAuth_token in dropbox_paths:  # dropbox_paths es ordenado 1,2,3,... por tanto si OAuth_token lo es tambien no hay problema
@@ -102,16 +106,15 @@ def __write_to_file(path, t_res, img_match):
     :param img_match:
     :return:
     """
-
-    file_name = '{0}/{1}.txt'.format(path, t_res[0])  # file's name is the <terminal-id>
+    file_name = '{0}/{1}.txt'.format(path, t_res['ter_id'])  # file's name is the <terminal-id>
     try:
         with open(file_name, 'w') as f:
-            for data in t_res:
+            for data in t_res.values():
                 f.write('{0}\n'.format(data))
             f.write(img_match)
             f.close()
     except IOError:
-        print 'could not create the file'
+        logging.error('could not create forwarding file')
 
 
 def __make_tarfile(output_filename, source_dir):
@@ -145,8 +148,7 @@ def download_tar(local_path, dropbox_paths, download_q, name_lis, enc_format, su
     '''
     try:
         # get the files from the cloud (dropbox accouts)
-        #__get_folders_processes(local_path, OAuth_token, dropbox_paths)
-        __get_folders_processes_2(local_path, dropbox_paths)
+        __get_folders_processes(local_path, dropbox_paths)
         #  decrypts tar.gz and extract files in local_path
         enc.decrypt_chunks_parallel(local_path, key_path_2, enc_format)
         files = os.listdir(local_path)
@@ -159,7 +161,7 @@ def download_tar(local_path, dropbox_paths, download_q, name_lis, enc_format, su
         # build the file .lis
         __buid_bozorth_lis_file(local_path, name_lis)
 
-    except (OSError, IOError) as e:
+    except (OSError, IOError):
         logging.error('error ')
         download_q.put(1)
     else:
@@ -180,15 +182,14 @@ def download_chunks(local_path, dropbox_paths, download_q, name_lis, enc_format,
     '''
     try:
         # get the files from the cloud (dropbox accouts)
-        #__get_folders_processes(local_path, OAuth_token, dropbox_paths)
-        __get_folders_processes_2(local_path, dropbox_paths)
+        __get_folders_processes(local_path, dropbox_paths)
         # decrypt
-        enc.decrypt_chunks_parallel(local_path, key_path_2, enc_format)  # is_64bits
-        enc.decrypt_to_file_parallel(local_path, key_path_1, enc_format)  # is_64bits
+        enc.decrypt_chunks_parallel(local_path, key_path_2, enc_format)
+        enc.decrypt_to_file_parallel(local_path, key_path_1, enc_format)
         # build the file .lis
         __buid_bozorth_lis_file(local_path, name_lis)
 
-    except (OSError, IOError) as e:
+    except (OSError, IOError):
         logging.error('error ')
         download_q.put(1)
     else:
@@ -217,9 +218,9 @@ def compare(dir_name, local_path, path_output, t_res, read_q, q_timeout, min_val
     else:
         if (recv_1 and recv_2) != 1:
             try:
-                results = sub.check_output([cmd_bozorth32.format(dir_name, local_path)]
+                results = sub.check_output([cmd_bozorth3.format(dir_name, local_path)]
                                            , shell=True)  # compare through bozorth
-            except sub.CalledProcessError as e:
+            except sub.CalledProcessError:
                 shutil.rmtree(dir_name)  # borrar carpeta...
                 logging.error('bozorth3 OS error')
             else:
@@ -228,9 +229,8 @@ def compare(dir_name, local_path, path_output, t_res, read_q, q_timeout, min_val
 
                 max_value = max(res_list)  # get greatest number
                 max_index = res_list.index(max_value)  # get its index
-                # get fingerprint's id through the (index)line number from listxyt.lis
-                line = linecache.getline('{0}{1}.lis'.format(local_path, name_lis), max_index + 1)
-                # line = line[line.rfind('/')+1:line.rfind('.')]
+                # get fingerprint's id from the (index)line number in listxyt.lis
+                line = linecache.getline('{0}{1}'.format(local_path, name_lis), max_index + 1)
                 line = os.path.basename(line)
                 line = line[:line.rfind('.')]
                 print max_value
@@ -257,9 +257,8 @@ def download_tar_up(local_path, dropbox_paths, download_q, enc_format, suffix_ch
     :return:
     '''
     try:
-        # get the files from the cloud (dropbox accouts)
-        #__get_folders_processes(local_path, OAuth_token, dropbox_paths)
-        __get_folders_processes_2(local_path, dropbox_paths)
+        # get the files from the cloud (dropbox accounts)
+        __get_folders_processes(local_path, dropbox_paths)
         #  decrypts tar.gz and extract files in local_path
         enc.decrypt_chunks_parallel(local_path, key_path_2, enc_format)  # is_64bits
         files = os.listdir(local_path)
@@ -267,50 +266,61 @@ def download_tar_up(local_path, dropbox_paths, download_q, enc_format, suffix_ch
             if file_name.rfind(suffix_chunk_tar):
                 __extract_tarfile(file_name, local_path, True)
 
-    except (OSError, IOError) as e:
+    except (OSError, IOError):
         logging.error('error ')
         download_q.put(1)
     else:
         download_q.put('done')
 
 
-def upload_tar(paths, read_q, q_timeout, n_chunks, suf, enc_format, t_res, dropbox_paths_format, suffix_chunk_tar,
-               dropbox_tar_format, key_path_1, key_path_2, tuple_OAuth_tokens):
+def upload_tar(paths, read_q, q_timeout, file_suffix, enc_format, t_res, dropbox_paths_format,
+               suffix_chunk_tar, dropbox_tar_format, key_path_1, key_path_2, tuple_OAuth_tokens):
+    """
 
-    suf = (2, 3, 4)
+    :param paths:
+    :param read_q:
+    :param q_timeout:
+    :param file_suffix:
+    :param enc_format:
+    :param t_res:
+    :param dropbox_paths_format:
+    :param suffix_chunk_tar:
+    :param dropbox_tar_format:
+    :param key_path_1:
+    :param key_path_2:
+    :param tuple_OAuth_tokens:
+    :return:
+    """
+    # file_suffix = (2, 3, 4)
     try:
         recv_1 = read_q.get(timeout=q_timeout)
         recv_2 = read_q.get(timeout=q_timeout)
     except q_exception.Empty:
         logging.error('timeout, no response')
-        shutil.rmtree(paths[0])  # remove folder...
+        shutil.rmtree(paths[0])  # remove folder
     else:
         if (recv_1 and recv_2) != 1:
             # treat the img given img. (rename it?), encrypt it, split. t_res[3] + t_res[6] -> name of the img !!!!
-            enc.encrypt_files(paths[0]+slash, key_path_1, paths[1], enc_format, t_res[3] + t_res[6])
+            enc.encrypt_files(paths[0]+slash, key_path_1, paths[1], enc_format, t_res['name'] + t_res['usr_id'])
 
-            # moves  the generated chunks to the chunk's folders
-            for i in range(0, n_chunks):
-                end = suf[i]
-                #print 'mv {0}*-0{2} {0}chunk{1}'.format(paths[1], i, end)
-                sub.call('mv {0}*-0{2} {0}chunk{1}'.format(paths[1], i+1, end), shell=True)
+            # moves  the generated chunks to chunk's folders
+            for index, f_suffix in enumerate(file_suffix):
+                sub.call('mv {0}*-0{2} {0}chunk{1}'.format(paths[1], index+1, f_suffix), shell=True)
 
             # create tar.gz (name format : <pin>%<part>.tar.gz)
             for index, up_path in enumerate(os.listdir(paths[1])):  # name
-                __make_tarfile(dropbox_tar_format.format(paths[1], t_res[2], index+1, suffix_chunk_tar),
+                __make_tarfile(dropbox_tar_format.format(paths[1], t_res['pin'], index+1, suffix_chunk_tar),
                                paths[1] + up_path)
 
             # encrypt tar.gz
             enc.encrypt_chunks_tar(paths[1], key_path_2, suffix_chunk_tar)
 
             # upload encrypted files (it overwrites files with same name and format in dropbox)
-            #print [i for i in os.listdir(paths[1]) if i.find(enc_format) > -1]
             tar_aes_path = [(i, i[i.find('%')+1:i.find(suffix_chunk_tar)]) for i in os.listdir(paths[1]) if i.find(enc_format) > -1]
-            # [('9999%3.tar.gz.aes', '3'), ('9999%2.tar.gz.aes', '2'), ('9999%1.tar.gz.aes', '1')]
+
             print tar_aes_path
-            # dropbox_paths_format = '/pin{0}-{1}'
             for tar_aes_file, index in tar_aes_path:
-                drop.upload_file(paths[1] + tar_aes_file, dropbox_paths_format.format(t_res[2], index+slash),
+                drop.upload_file(paths[1] + tar_aes_file, dropbox_paths_format.format(t_res['pin'], index+slash),
                                  tuple_OAuth_tokens[int(index)-1])
 
         shutil.rmtree(paths[0])  # siempre borrar
@@ -338,22 +348,3 @@ def extract_mindtct(source_path, extract_q, dst_path):
         extract_q.put(1)
     else:
         extract_q.put('done')
-
-'''
-def __get_folders_processes(local_path, OAuth_token, dropbox_paths):
-    # OAuth_token, dropbox_paths son lista una capeta por cuenta
-    # nota: no se puede implementar como un pool de procesos pq esto no pueden lanzar otros procesos(
-    # daemonic processes are not allowed to have children ) se podria si se cambia en el modulo de daemonic= yes a no
-    # pero hace el codigo no reutilizable
-    pro_list = []
-    test_t = time.time()
-    for path in dropbox_paths:  # dropbox_paths es ordenado 1,2,3,... por tanto si OAuth_token lo es tambien no hay problema
-        k = Process(target=drop.retrieve_folder_parallel, args=(path, local_path, OAuth_token))
-        k.start()
-        pro_list.append(k)
-
-    for p in pro_list:
-        p.join()
-    print 'hey there im done {} !'.format(time.time() - test_t)
-    # 2.32230401039 2.20498013496
-    '''
