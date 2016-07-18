@@ -12,18 +12,18 @@ import time
 import apidropbox as drop
 import encryption as enc
 
-print 'download chunks working_path : {0}'.format(os.getcwd())  # getting the working path, just for test
+#print 'download chunks working_path : {0}'.format(os.getcwd())  # getting the working path, just for test
 
 #  checks sistem arch in order to choose binaries
 is_64bits = sys.maxsize > 2**32
 if is_64bits:
-    print 'im x86_64 bit system'
+    #print 'im x86_64 system'
     enc.binary = './aescrypt_64'
     cmd_mindtct = './mindtct_64_V2 -b {0} {1}'
     #cmd_bozorth3 = './bozorth3_64 -p {0} -G {1}listXyt.lis '
     cmd_bozorth3 = './bozorth3_64 -p {0}/{0}.xyt -G {1}listXyt.lis '
 else:
-    print 'im i386 (32 bit) system'
+    #print 'im i386 (32 bit) system'
     enc.binary = './aescrypt_32'
     cmd_mindtct = './mindtct_32_V2 -b {0} {1}'
     #cmd_bozorth3 = './bozorth3_32 -p {0} -G {1}listXyt.lis '
@@ -32,8 +32,26 @@ else:
 slash = '/'
 
 #
-# private aux. methods
+# private aux. and config methods
 #
+
+
+def print_globals():
+    """
+
+    :return:
+    """
+    print globals()
+
+
+def update_globals(data_map):
+    globals().update(data_map)
+    globals()['tuple_OAuth_tokens'] = tuple(globals()['tuple_OAuth_tokens'])
+    globals()['img_ext'] = tuple(globals()['img_ext'])
+    globals()['file_ext'] = tuple(globals()['file_ext'])
+    globals()['file_suffixes'] = tuple(globals()['file_suffixes'])
+    globals()['register'] = tuple(globals()['register'])
+    globals()['charge'] = tuple(globals()['charge'])
 
 
 def __buid_bozorth_lis_file(local_path, name_lis):
@@ -98,23 +116,64 @@ def __get_folders_processes(local_path, dropbox_paths):
     # 2.32230401039 2.20498013496
 
 
-def __write_to_file(path, t_res, img_match):
+def __prepare_to_write_reg(t_res):
+    """
+
+    :param t_res:
+    :return:
+    """
+    return t_res['ter_id'], t_res['operation'], t_res['pin'], t_res['name'], t_res['surname'], t_res['family'], \
+           t_res['usr_id'], t_res['mail'], t_res['phone']
+
+
+def __prepare_to_write_com(t_res):
+    """
+
+    :param t_res:
+    :return:
+    """
+    return t_res['ter_id'], t_res['operation'], t_res['pin'], t_res['amount']
+
+
+def __write_to_file(path, t_res, img_match, prepare):
     """
 
     :param path:
     :param t_res:
     :param img_match:
+    :param prepare:
     :return:
     """
-    file_name = '{0}/{1}.txt'.format(path, t_res['ter_id'])  # file's name is the <terminal-id>
+    file_name = '{0}/{1}.txt'.format(path, t_res['ter_id'])  # file's name is the <terminal-id>]
+    values = prepare(t_res)
     try:
         with open(file_name, 'w') as f:
-            for data in t_res.values():
+            for data in values:
                 f.write('{0}\n'.format(data))
             f.write(img_match)
             f.close()
     except IOError:
         logging.error('could not create forwarding file')
+
+
+def __writ_fail_watchdog_db(db_listening_path, id_ter):
+    """
+
+    :param db_listening_path:
+    :param id_ter:
+    :return:
+    """
+
+    file_name = '{0}/{1}.txt'.format(db_listening_path, id_ter)  # file's name is the <terminal-id>]
+    data = '{0}\n'
+    try:
+        with open(file_name, 'w') as f:
+            f.write(data.format('CHARGE'))
+            f.write(data.format('FAILURE'))
+            f.write(data.format(id_ter))
+            f.close()
+    except IOError:
+        logging.error('could not create DB error message')
 
 
 def __make_tarfile(output_filename, source_dir):
@@ -133,21 +192,16 @@ def __make_tarfile(output_filename, source_dir):
 #
 
 
-def download_tar(local_path, dropbox_paths, download_q, name_lis, enc_format, suffix_chunk_tar, key_path_1, key_path_2):
-    '''
+def download_tar(local_path, dropbox_paths, download_q):
+    """
 
     :param local_path:
     :param dropbox_paths:
     :param download_q:
-    :param name_lis:
-    :param enc_format:
-    :param suffix_chunk_tar:
-    :param key_path_1:
-    :param key_path_2:
     :return:
-    '''
+    """
     try:
-        # get the files from the cloud (dropbox accouts)
+        # get the files from the cloud (dropbox accounts)
         __get_folders_processes(local_path, dropbox_paths)
         #  decrypts tar.gz and extract files in local_path
         enc.decrypt_chunks_parallel(local_path, key_path_2, enc_format)
@@ -168,18 +222,14 @@ def download_tar(local_path, dropbox_paths, download_q, name_lis, enc_format, su
         download_q.put('done')
 
 
-def download_chunks(local_path, dropbox_paths, download_q, name_lis, enc_format, key_path_1, key_path_2):
-    '''
+def download_chunks(local_path, dropbox_paths, download_q):
+    """
 
     :param local_path:
     :param dropbox_paths:
     :param download_q:
-    :param name_lis:
-    :param enc_format:
-    :param key_path_1:
-    :param key_path_2:
     :return:
-    '''
+    """
     try:
         # get the files from the cloud (dropbox accouts)
         __get_folders_processes(local_path, dropbox_paths)
@@ -196,32 +246,26 @@ def download_chunks(local_path, dropbox_paths, download_q, name_lis, enc_format,
         download_q.put('done')
 
 
-def compare(dir_name, local_path, path_output, t_res, read_q, q_timeout, min_value, name_lis):
-    '''
+def compare(paths, t_res, read_q,):
+    """
 
-    :param dir_name:
-    :param local_path:
-    :param path_output:
+    :param paths:
     :param t_res:
     :param read_q:
-    :param q_timeout:
-    :param min_value:
-    :param name_lis:
     :return:
-    '''
+    """
     try:
-        recv_1 = read_q.get(timeout=q_timeout)
-        recv_2 = read_q.get(timeout=q_timeout)
+        recv_1 = read_q.get(timeout=queue_timeout)
+        recv_2 = read_q.get(timeout=queue_timeout)
     except q_exception.Empty:
         logging.error('timeout, no response')
-        shutil.rmtree(dir_name)  # remove folder...
+        shutil.rmtree(paths[0])  # remove folder...
     else:
         if (recv_1 and recv_2) != 1:
             try:
-                results = sub.check_output([cmd_bozorth3.format(dir_name, local_path)]
+                results = sub.check_output([cmd_bozorth3.format(paths[0], paths[1])]
                                            , shell=True)  # compare through bozorth
             except sub.CalledProcessError:
-                shutil.rmtree(dir_name)  # borrar carpeta...
                 logging.error('bozorth3 OS error')
             else:
                 # find the greatest number from the result and its index
@@ -230,32 +274,35 @@ def compare(dir_name, local_path, path_output, t_res, read_q, q_timeout, min_val
                 max_value = max(res_list)  # get greatest number
                 max_index = res_list.index(max_value)  # get its index
                 # get fingerprint's id from the (index)line number in listxyt.lis
-                line = linecache.getline('{0}{1}'.format(local_path, name_lis), max_index + 1)
+                line = linecache.getline('{0}{1}'.format(paths[1], name_lis), max_index + 1)
+        # IMPORTANT: clear the cache, otherwise will read always the same values that come from an individual terminal
+                linecache.clearcache()
                 line = os.path.basename(line)
                 line = line[:line.rfind('.')]
                 print max_value
-                if min_value <= max_value:
+                if min_value <= max_value:  # we got a max.
                     print 'Match with : {0}'.format(line)  # the result, name of the greatest one
-                    __write_to_file(path_output, t_res, line)
+                    __write_to_file(watchdog_forward, t_res, line, __prepare_to_write_com)
+                else:
+                    __writ_fail_watchdog_db(db_listening_path, t_res['ter_id'])
+                    print 'not found max value, forward to db_response to be send terminals folder'
 
-        shutil.rmtree(dir_name)  # always remove
+        shutil.rmtree(paths[0])  # always remove
+
 
 #
 # register methods
 #
 
 
-def download_tar_up(local_path, dropbox_paths, download_q, enc_format, suffix_chunk_tar, key_path_2):
-    '''
+def download_tar_up(local_path, dropbox_paths, download_q):
+    """
 
     :param local_path:
     :param dropbox_paths:
     :param download_q:
-    :param enc_format:
-    :param suffix_chunk_tar:
-    :param key_path_2:
     :return:
-    '''
+    """
     try:
         # get the files from the cloud (dropbox accounts)
         __get_folders_processes(local_path, dropbox_paths)
@@ -273,28 +320,17 @@ def download_tar_up(local_path, dropbox_paths, download_q, enc_format, suffix_ch
         download_q.put('done')
 
 
-def upload_tar(paths, read_q, q_timeout, file_suffix, enc_format, t_res, dropbox_paths_format,
-               suffix_chunk_tar, dropbox_tar_format, key_path_1, key_path_2, tuple_OAuth_tokens):
+def upload_tar(paths, read_q, t_res):
     """
 
     :param paths:
     :param read_q:
-    :param q_timeout:
-    :param file_suffix:
-    :param enc_format:
     :param t_res:
-    :param dropbox_paths_format:
-    :param suffix_chunk_tar:
-    :param dropbox_tar_format:
-    :param key_path_1:
-    :param key_path_2:
-    :param tuple_OAuth_tokens:
     :return:
     """
-    # file_suffix = (2, 3, 4)
     try:
-        recv_1 = read_q.get(timeout=q_timeout)
-        recv_2 = read_q.get(timeout=q_timeout)
+        recv_1 = read_q.get(timeout=queue_timeout)
+        recv_2 = read_q.get(timeout=queue_timeout)
     except q_exception.Empty:
         logging.error('timeout, no response')
         shutil.rmtree(paths[0])  # remove folder
@@ -304,7 +340,7 @@ def upload_tar(paths, read_q, q_timeout, file_suffix, enc_format, t_res, dropbox
             enc.encrypt_files(paths[0]+slash, key_path_1, paths[1], enc_format, t_res['name'] + t_res['usr_id'])
 
             # moves  the generated chunks to chunk's folders
-            for index, f_suffix in enumerate(file_suffix):
+            for index, f_suffix in enumerate(file_suffixes):
                 sub.call('mv {0}*-0{2} {0}chunk{1}'.format(paths[1], index+1, f_suffix), shell=True)
 
             # create tar.gz (name format : <pin>%<part>.tar.gz)
@@ -322,8 +358,9 @@ def upload_tar(paths, read_q, q_timeout, file_suffix, enc_format, t_res, dropbox
             for tar_aes_file, index in tar_aes_path:
                 drop.upload_file(paths[1] + tar_aes_file, dropbox_paths_format.format(t_res['pin'], index+slash),
                                  tuple_OAuth_tokens[int(index)-1])
+            __write_to_file(watchdog_forward, t_res, t_res['name'] + t_res['usr_id'], __prepare_to_write_reg)
 
-        shutil.rmtree(paths[0])  # siempre borrar
+        shutil.rmtree(paths[0])  # always remove
 
 #
 # extract img method
@@ -343,8 +380,28 @@ def extract_mindtct(source_path, extract_q, dst_path):
         cmd = cmd_mindtct.format(source_path, relative_path)
         os.system(cmd)
         os.remove(source_path)  # removes the image
-    except OSError as e:
+    except OSError:
         logging.error('mindtct_V2 OS error')
         extract_q.put(1)
     else:
         extract_q.put('done')
+
+#
+# watchdog DB methods
+#
+
+
+def prepare_client_file(file_name, values):
+    """
+
+    :param file_name:
+    :param values:
+    :return:
+    """
+    try:
+        with open(file_name, 'w') as f:
+            for var in values:
+                f.write(var+'\n')
+            f.close()
+    except IOError:
+        logging.error('could not create client file')
