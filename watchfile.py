@@ -24,9 +24,10 @@ slash = '/'
 
 def __load_config_file(file_name):
     """
-
-    :param filename:
-    :return:
+    Loads varibles and constants from yalm config file and turns them into module's global variables, it also load some in
+    download_chunks module.
+    :param filename: str, config file name
+    :return: None
     """
     with open(file_name) as f:
         data_map = yaml.safe_load(f)
@@ -81,7 +82,7 @@ def treat_txt_file(path_tfile):
 
 def treat_img(path_file):
     '''
-    discover whether a directory exists or not (used for incoming images), if exists returns its name, False otherwise.
+    discovers whether a directory exists or not (used for incoming images), if exists returns its name, False otherwise.
     :param path_file: str, dir name
     :return: work dir name or False
     '''
@@ -96,7 +97,7 @@ def treat_img(path_file):
 
 def create_dir(ter_id):
     """
-    create directories for a single operation.
+    creates directories for a single operation.
     :param ter_id: ter_id
     :return: False in case of error or path for success
     """
