@@ -1,0 +1,350 @@
+2016-04-08 21:00:01,667 - ERROR: (download_chunks) compare - bozorth3 error 
+2016-04-20 19:05:51,534 - ERROR: (download_chunks) download_tar - error  
+2016-04-21 01:36:54,118 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-21 01:51:10,830 - ERROR: (download_chunks) compare - error sync time 
+2016-04-21 02:54:19,373 - ERROR: (download_chunks) extract_mindtct - fail 
+2016-04-21 03:05:52,905 - ERROR: (download_chunks) extract_mindtct - fail 
+2016-04-21 03:06:11,943 - ERROR: (download_chunks) extract_mindtct - fail 
+2016-04-21 20:46:50,387 - ERROR: (download_chunks) compare - error sync time 
+2016-04-21 20:48:03,698 - ERROR: (download_chunks) compare - error sync time 
+2016-04-21 20:51:15,022 - ERROR: (download_chunks) compare - error sync time 
+2016-04-21 20:54:22,310 - ERROR: (download_chunks) compare - error sync time 
+2016-04-21 20:55:41,541 - ERROR: (download_chunks) compare - error sync time 
+2016-04-21 20:56:37,824 - ERROR: (download_chunks) download_tar - error  
+2016-04-21 20:56:57,866 - ERROR: (download_chunks) compare - error sync time 
+2016-04-21 20:58:57,383 - ERROR: (download_chunks) download_tar - error  
+2016-04-21 21:00:49,237 - ERROR: (download_chunks) compare - error sync time 
+2016-04-21 21:03:56,784 - ERROR: (download_chunks) download_tar - error  
+2016-04-21 21:04:16,881 - ERROR: (download_chunks) compare - error sync time 
+2016-04-21 21:05:15,142 - ERROR: (download_chunks) compare - error sync time 
+2016-04-21 21:09:17,459 - ERROR: (download_chunks) compare - error sync time 
+2016-04-21 22:20:32,393 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-21 22:49:43,094 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-21 22:52:09,648 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-21 22:57:05,974 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-21 22:57:24,680 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-21 22:59:08,473 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-21 23:15:13,952 - ERROR: (download_chunks) extract_mindtct - mindtct_V2 OS error 
+2016-04-21 23:15:51,813 - ERROR: (download_chunks) extract_mindtct - mindtct_V2 OS error 
+2016-04-21 23:57:56,732 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-22 01:36:13,988 - ERROR: (download_chunks) download_tar - error  
+2016-04-22 01:38:05,930 - ERROR: (download_chunks) download_tar - error  
+2016-04-22 01:39:59,171 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-22 02:39:03,852 - ERROR: (download_chunks) compare - error sync time 
+2016-04-22 02:44:22,035 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-22 02:52:37,647 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-22 02:53:54,614 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-22 02:55:07,952 - ERROR: (download_chunks) download_tar - error  
+2016-04-22 03:14:31,539 - ERROR: (download_chunks) download_tar - error  
+2016-04-22 03:14:31,540 - ERROR: (download_chunks) download_tar - error  
+2016-04-22 03:14:31,543 - ERROR: (download_chunks) download_tar - error  
+2016-04-22 03:14:31,554 - ERROR: (download_chunks) download_tar - error  
+2016-04-22 03:14:31,555 - ERROR: (download_chunks) download_tar - error  
+2016-04-22 03:14:31,571 - ERROR: (download_chunks) download_tar - error  
+2016-04-22 03:14:31,574 - ERROR: (download_chunks) download_tar - error  
+2016-04-22 03:14:37,519 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-22 03:37:03,227 - ERROR: (download_chunks) compare - error sync time 
+2016-04-23 13:40:59,895 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-23 13:40:59,902 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 13:40:59,923 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-23 13:46:03,603 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-23 13:46:11,369 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-23 13:47:10,078 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-23 13:48:11,019 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 13:49:06,958 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-23 14:12:41,152 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-23 14:13:41,944 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-23 14:17:31,951 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-23 14:31:53,586 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 14:32:02,645 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-23 17:31:14,008 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-23 17:31:47,269 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 17:45:19,008 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-23 17:45:19,755 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 17:50:13,367 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 17:52:13,206 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 17:56:29,019 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 17:56:31,552 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 17:56:34,334 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 17:57:00,161 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 17:57:03,743 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-23 17:57:17,764 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 17:57:18,800 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-23 17:58:33,170 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 17:58:42,004 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 17:59:39,376 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 17:59:43,259 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 17:59:45,393 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 17:59:47,427 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 17:59:52,914 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 18:00:13,436 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 18:00:39,125 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 18:00:40,360 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 18:01:49,390 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 18:14:05,025 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-23 18:18:42,697 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-23 18:20:30,804 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-23 18:23:49,363 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 18:23:50,597 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 18:23:51,480 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 18:23:58,364 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 18:23:59,849 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 18:24:00,782 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 18:24:15,468 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-23 18:28:05,914 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-23 18:28:45,665 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,682 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,683 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,684 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,686 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,686 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,688 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,688 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,690 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,691 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,691 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,692 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,693 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,693 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,693 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,694 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,694 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,695 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,696 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,696 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,696 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,697 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,697 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,698 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,698 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,699 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,699 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,699 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,699 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,700 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,701 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,702 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,703 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,704 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,704 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,704 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,705 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,706 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,706 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,707 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,710 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,711 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,712 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,713 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,713 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,713 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,713 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,715 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,716 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,716 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,717 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,719 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,719 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,720 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:28:45,726 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:30:04,082 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-23 18:30:42,990 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-23 18:31:07,555 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-23 18:36:09,034 - ERROR: (download_chunks) download_tar - error  
+2016-04-23 18:36:56,982 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-23 18:37:04,032 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-23 18:41:16,202 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-23 19:45:38,716 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-24 20:57:19,098 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-24 21:01:25,134 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-24 21:03:50,934 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-24 21:03:52,376 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-24 21:04:14,042 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-24 21:12:55,494 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-24 21:13:46,281 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-24 21:16:08,535 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-24 21:17:05,788 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-24 21:17:45,196 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-24 21:19:49,954 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-25 00:52:27,670 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-25 00:57:14,623 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-25 00:57:15,030 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-25 01:33:10,217 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-25 01:59:00,945 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-25 02:16:34,979 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-25 02:19:20,531 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-25 02:20:25,406 - ERROR: (watchfile) create_dir - directory already exist 
+2016-04-25 02:21:35,813 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-25 02:29:07,793 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-27 13:14:33,286 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-27 14:09:46,726 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-27 14:25:51,730 - ERROR: (download_chunks) extract_mindtct - mindtct_V2 OS error 
+2016-04-27 14:25:51,769 - ERROR: (download_chunks) extract_mindtct - mindtct_V2 OS error 
+2016-04-27 14:25:52,685 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-27 14:26:44,975 - ERROR: (download_chunks) extract_mindtct - mindtct_V2 OS error 
+2016-04-27 14:26:46,307 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-27 14:28:44,338 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-27 14:28:44,462 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-27 14:32:20,568 - ERROR: (download_chunks) extract_mindtct - mindtct_V2 OS error 
+2016-04-27 14:32:21,936 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-04-27 21:17:08,517 - ERROR: (download_chunks) compare - timeout, no response 
+2016-04-27 21:17:09,533 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-03 00:44:16,578 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-03 11:10:56,774 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-03 11:10:57,545 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-04 12:51:10,363 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-04 12:51:11,333 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-04 12:53:14,839 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-04 12:53:14,882 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-04 13:41:34,350 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-04 13:41:34,578 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-04 14:01:35,132 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-04 14:01:36,011 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-04 14:23:22,258 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-04 14:39:45,350 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-04 14:46:19,752 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-05 01:56:48,766 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-05 02:32:02,769 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-11 19:25:39,603 - ERROR: (download_chunks) download_tar - error  
+2016-05-11 19:25:40,217 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-05-11 19:26:15,568 - ERROR: (download_chunks) download_tar - error  
+2016-05-11 19:26:16,850 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-05-11 19:28:18,375 - ERROR: (download_chunks) download_tar - error  
+2016-05-11 19:28:28,419 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-11 19:28:38,689 - ERROR: (download_chunks) download_tar - error  
+2016-05-11 19:28:40,393 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-05-11 19:29:28,291 - ERROR: (download_chunks) download_tar - error  
+2016-05-11 19:29:29,189 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-05-11 19:31:22,681 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-11 19:35:18,411 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-11 19:37:53,127 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-11 19:39:09,333 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-11 19:40:24,542 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-11 23:13:51,935 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-11 23:16:26,636 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-11 23:16:28,320 - ERROR: (download_chunks) download_tar - error  
+2016-05-11 23:17:39,644 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-11 23:18:17,341 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-12 09:38:40,699 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-12 09:40:25,844 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-12 09:42:24,115 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-12 09:42:57,890 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-12 09:43:24,938 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-12 09:43:29,978 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-12 10:24:28,379 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-12 10:25:53,632 - ERROR: (download_chunks) upload_tar - timeout, no response 
+2016-05-12 11:32:39,626 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-12 11:33:31,018 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-12 11:35:39,933 - ERROR: (download_chunks) upload_tar - timeout, no response 
+2016-05-12 11:41:25,765 - ERROR: (download_chunks) upload_tar - timeout, no response 
+2016-05-12 12:07:56,365 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-12 20:09:13,030 - ERROR: (download_chunks) download_tar - error  
+2016-05-12 20:10:04,637 - ERROR: (download_chunks) upload_tar - timeout, no response 
+2016-05-12 20:11:16,396 - ERROR: (download_chunks) upload_tar - timeout, no response 
+2016-05-12 20:12:11,797 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-12 20:12:58,113 - ERROR: (download_chunks) upload_tar - timeout, no response 
+2016-05-12 23:44:26,951 - ERROR: (download_chunks) download_tar - error  
+2016-05-12 23:44:27,773 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-05-12 23:45:17,751 - ERROR: (download_chunks) download_tar - error  
+2016-05-12 23:45:22,396 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-05-12 23:46:11,093 - ERROR: (download_chunks) download_tar - error  
+2016-05-12 23:46:12,034 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-05-12 23:47:41,789 - ERROR: (download_chunks) download_tar - error  
+2016-05-12 23:47:42,979 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-05-12 23:48:09,758 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-12 23:49:26,522 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-12 23:54:38,707 - ERROR: (download_chunks) download_tar - error  
+2016-05-12 23:54:39,542 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-05-12 23:56:26,884 - ERROR: (download_chunks) download_tar - error  
+2016-05-12 23:56:27,561 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-05-12 23:56:52,603 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-12 23:59:30,317 - ERROR: (download_chunks) download_tar - error  
+2016-05-12 23:59:30,802 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-05-13 00:01:42,483 - ERROR: (download_chunks) download_tar - error  
+2016-05-13 00:01:42,595 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-05-13 00:02:48,843 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 00:03:51,534 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 00:07:11,493 - ERROR: (download_chunks) download_tar - error  
+2016-05-13 00:07:53,888 - ERROR: (download_chunks) upload_tar - timeout, no response 
+2016-05-13 00:09:01,671 - ERROR: (download_chunks) download_tar - error  
+2016-05-13 00:09:21,951 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 00:10:22,182 - ERROR: (download_chunks) download_tar - error  
+2016-05-13 00:10:25,257 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-05-13 00:22:17,785 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-13 00:22:21,140 - ERROR: (download_chunks) upload_tar - timeout, no response 
+2016-05-13 00:23:59,554 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-13 00:25:16,491 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-13 00:40:59,672 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 13:35:48,321 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-13 13:36:46,329 - ERROR: (download_chunks) upload_tar - timeout, no response 
+2016-05-13 14:25:02,514 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 14:43:05,350 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 14:44:54,127 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-13 15:25:52,885 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 15:37:05,818 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 15:41:08,892 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 15:42:38,418 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 15:44:44,472 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 15:46:16,291 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 15:48:42,198 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 15:49:11,293 - ERROR: (download_chunks) download_tar - error  
+2016-05-13 15:51:45,470 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 15:52:08,374 - ERROR: (download_chunks) download_tar - error  
+2016-05-13 15:55:25,971 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 15:55:26,924 - ERROR: (download_chunks) download_tar - error  
+2016-05-13 16:02:59,822 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 16:04:00,620 - ERROR: (download_chunks) download_tar - error  
+2016-05-13 16:10:20,718 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 16:10:23,571 - ERROR: (download_chunks) download_tar - error  
+2016-05-13 16:14:09,533 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 16:16:54,076 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-13 16:18:24,126 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 16:26:33,451 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 16:30:32,621 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 16:31:34,903 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 16:33:34,018 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 16:35:42,522 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-13 16:39:35,683 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-13 16:43:33,671 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-13 16:45:36,383 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 16:55:00,868 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-13 16:57:06,336 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-13 16:57:30,843 - ERROR: (download_chunks) upload_tar - timeout, no response 
+2016-05-13 17:03:59,554 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 17:04:01,917 - ERROR: (download_chunks) download_tar - error  
+2016-05-13 17:04:34,970 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 17:04:58,523 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-13 18:00:14,365 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-13 18:00:16,035 - ERROR: (download_chunks) download_tar - error  
+2016-05-16 12:27:47,293 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-16 12:27:48,862 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-16 18:44:23,784 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-16 19:05:03,662 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-16 19:05:03,697 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-16 19:05:38,409 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-17 00:38:07,360 - ERROR: (download_chunks) upload_tar - timeout, no response 
+2016-05-17 00:41:14,704 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-17 00:46:51,024 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-17 00:46:51,027 - ERROR: (download_chunks) compare - timeout, no response 
+2016-05-31 00:12:59,238 - ERROR: (watchfile) create_dir - directory already exist 
+2016-05-31 00:14:35,661 - ERROR: (watchfile) create_dir - directory already exist 
+2016-06-03 16:59:41,296 - ERROR: (watchfile) create_dir - directory already exist 
+2016-06-03 17:00:15,252 - ERROR: (watchfile) create_dir - directory already exist 
+2016-06-03 19:32:09,769 - ERROR: (download_chunks) extract_mindtct - mindtct_V2 OS error 
+2016-06-03 19:32:10,067 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-06-03 19:34:53,131 - ERROR: (download_chunks) compare - timeout, no response 
+2016-06-03 19:36:16,282 - ERROR: (download_chunks) extract_mindtct - mindtct_V2 OS error 
+2016-06-03 19:41:17,683 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-06-03 19:42:17,225 - ERROR: (download_chunks) extract_mindtct - mindtct_V2 OS error 
+2016-06-03 19:42:39,884 - ERROR: (download_chunks) extract_mindtct - mindtct_V2 OS error 
+2016-06-03 19:45:52,820 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-06-03 19:46:55,919 - ERROR: (download_chunks) compare - bozorth3 OS error 
+2016-06-03 20:24:04,896 - ERROR: (download_chunks) compare - timeout, no response 
+2016-06-03 20:24:06,008 - ERROR: (download_chunks) compare - timeout, no response 
+2016-06-04 00:27:13,995 - ERROR: (download_chunks) compare - timeout, no response 
+2016-06-04 00:27:14,810 - ERROR: (download_chunks) download_tar - error  
+2016-06-04 00:29:03,370 - ERROR: (download_chunks) compare - timeout, no response 
+2016-06-04 00:29:56,036 - ERROR: (download_chunks) compare - timeout, no response 
+2016-06-06 22:40:11,199 - ERROR: (download_chunks) compare - timeout, no response 
+2016-06-06 22:54:13,932 - ERROR: (watchfile) create_dir - directory already exist 
+2016-06-10 20:41:21,869 - ERROR: (watchfile) create_dir - directory already exist 

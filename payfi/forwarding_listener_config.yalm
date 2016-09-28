@@ -1,0 +1,24 @@
+# data base watchfile configuration file.
+#
+# Load constant variables's values.
+#
+# Beware!! some variables depends on each other, in case some variable's value has changed
+# and the depending variable value hasn't been adapted it may crash the application.
+#
+
+# paths
+
+db_listening_path : '/home/watchdog_db'  # awaiting for incoming connections from the db
+forward_path : '/home/guest/{0}/{1}'  # where forwards the answers
+
+# paths
+watchdog_forwarding : '/home/watchdog_forwarding'
+
+
+file_ext : ['.txt']   # list of admitted file extensions
+
+# db connection
+db_auth : 'DB_auth.pem'
+db_user : 'valid user'
+db_dir : 'valid path'
+db_conn : 'valid ec2 dns'

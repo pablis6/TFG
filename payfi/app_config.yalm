@@ -1,0 +1,44 @@
+# Aplication configuration file.
+#
+# Load constant variables's values. 
+#
+# Beware!! some variables depends on each other, in case some variable's value has changed
+# and the depending variable value hasn't been adapted it may crash the application.
+# 
+
+# Oauth tokens, to connect dropbox's accs:
+
+tuple_OAuth_tokens : [ 'token_1',
+                        'token_2',
+                        'token_3']
+
+# Local constant variables:
+
+queue_timeout : 15  # (seconds), default value 10
+min_value : 30  # (concatenated minutae path), default value 30
+key_path_1 : 'secret.key'
+key_path_2 : 'secret2.key'
+
+# local names, formats & extensions
+
+# log_path : 'my_log.log'  # log file path, it being initialized in the src code, in case of load failure writes in it.
+name_lis : 'listXyt.lis'  # list name and extension
+enc_format : '.aes'  # cipher file extension
+suffix_chunk_tar : '.tar.gz'  #
+file_suffixes : [2, 3, 4]  # suffix values for xyt split file, it represents the number of chunks a file is split
+watchdog_listening : '/home/watchdog_listening'  # directory name receives incoming connections
+watchdog_forward : '/home/watchdog_forwarding'  # directory forwards files
+db_listening_path : '/home/watchdog_db'  # awaiting for incoming connections from the db
+
+# remote (dropbox cloud) names & formats
+
+dropbox_paths_format : '/pin{0}-{1}'  # {0} pin number, {1} number of directory
+dropbox_tar_format : '{0}{1}%{2}{3}'  # directory
+
+img_ext : ['.png', '.jpg']  # list of admitted images extensions
+file_ext : ['.txt']   # list of admitted file extensions
+
+# type operations
+register : ['register', 'REGISTER']
+charge : ['charge', 'CHARGE']
+

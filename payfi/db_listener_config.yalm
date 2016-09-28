@@ -1,0 +1,22 @@
+# data base watchfile configuration file.
+#
+# Load constant variables's values. 
+#
+# Beware!! some variables depends on each other, in case some variable's value has changed
+# and the depending variable value hasn't been adapted it may crash the application.
+# 
+
+# paths
+db_listening_path : '/home/watchdog_db'  # awaiting for incoming connections from the db
+forward_path : '/home/guest_inbox/{0}/{1}'  # where forwards the answers
+
+
+file_ext : ['.txt']   # list of admitted file extensions
+
+# type operations
+register : ['register', 'REGISTER']
+charge : ['charge', 'CHARGE']
+
+# operations results:
+success : ['SUCCESS', 'success']
+fail : ['FAILURE', 'failure']
