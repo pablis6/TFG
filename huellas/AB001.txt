@@ -1,9 +1,0 @@
-AB001
-REGISTER
-pinnumerico
-Nombre
-Apellido 1
-Apellido 2
-DNI con letra
-email
-666666666
