@@ -20,9 +20,9 @@ log_path = 'my_log.log'
 
 def __load_config_file(file_name):
     """
-
-    :param filename:
-    :return:
+    Loads varibles and constants from yalm config file and turns them into module's global variables
+    :param filename: str, config file name
+    :return: None
     """
     with open(file_name) as f:
         data_map = yaml.safe_load(f)
