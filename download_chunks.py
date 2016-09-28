@@ -38,13 +38,18 @@ slash = '/'
 
 def print_globals():
     """
-
-    :return:
+    An auxiliary method that prints download_chunks globals variables, it is called from other modules
+    :return: prints download_chunks globals variables
     """
     print globals()
 
 
 def update_globals(data_map):
+    """
+    Updades newly loaded globals variables, also transforms lists containers to tuples
+    :param filename: config file name
+    :return: None
+    """
     globals().update(data_map)
     globals()['tuple_OAuth_tokens'] = tuple(globals()['tuple_OAuth_tokens'])
     globals()['img_ext'] = tuple(globals()['img_ext'])
@@ -73,7 +78,7 @@ def __buid_bozorth_lis_file(local_path, name_lis):
 
 def __extract_tarfile(input_filename, dst_path, upload=None):
     """
-    extract files from tar.gz file, same source and destiny path.
+    extract files from tar.gz , same source and destiny path.
     :param intput_filename: str tar.gz file name
     :param dst_path: str path to tar.gz and destiny path to extract.
     :return: None
@@ -98,10 +103,10 @@ def __extract_tarfile(input_filename, dst_path, upload=None):
 
 def __get_folders_processes(local_path, dropbox_paths):
     """
-
-    :param local_path:
-    :param dropbox_paths:
-    :return:
+    Retrieves in parrallel (launching several processes) files from dropbox.
+    :param local_path: path where the files will be downloaded
+    :param dropbox_paths: remote dropbox's paths (pin's folder) 
+    :return: None
     """
     pro_list = []
     test_t = time.time()
@@ -112,15 +117,15 @@ def __get_folders_processes(local_path, dropbox_paths):
 
     for p in pro_list:
         p.join()
-    print 'hey there im done {} !'.format(time.time() - test_t)
+    print 'hey there im done {} !'.format(time.time() - test_t)  # just for test
     # 2.32230401039 2.20498013496
 
 
 def __prepare_to_write_reg(t_res):
     """
-
-    :param t_res:
-    :return:
+    Returns in order user's infomation for a registration.
+    :param t_res: dict, contains the info for a user registration 
+    :return: tuple, ordered tuple with user's data 
     """
     return t_res['ter_id'], t_res['operation'], t_res['pin'], t_res['name'], t_res['surname'], t_res['family'], \
            t_res['usr_id'], t_res['mail'], t_res['phone']
@@ -128,21 +133,21 @@ def __prepare_to_write_reg(t_res):
 
 def __prepare_to_write_com(t_res):
     """
-
-    :param t_res:
-    :return:
+    Returns in order information for a charge operation.
+    :param t_res: dict, contains charge info.
+    :return: tuple, ordered tuple charge info.
     """
     return t_res['ter_id'], t_res['operation'], t_res['pin'], t_res['amount']
 
 
 def __write_to_file(path, t_res, img_match, prepare):
     """
-
-    :param path:
-    :param t_res:
-    :param img_match:
-    :param prepare:
-    :return:
+    Writes a file which contains info for charge/register operations.
+    :param path: str, path's file 
+    :param t_res: dict, register/charge data.
+    :param img_match: str, img name 
+    :param prepare: fun, function that returns info as tuple depending what operation is required (register/charge).
+    :return: None
     """
     file_name = '{0}/{1}.txt'.format(path, t_res['ter_id'])  # file's name is the <terminal-id>]
     values = prepare(t_res)
@@ -158,10 +163,10 @@ def __write_to_file(path, t_res, img_match, prepare):
 
 def __writ_fail_watchdog_db(db_listening_path, id_ter):
     """
-
-    :param db_listening_path:
-    :param id_ter:
-    :return:
+    Creates file in watchdog database in case of operation error.
+    :param db_listening_path: str, watchdog database path
+    :param id_ter: str, terminal's id  
+    :return: None
     """
 
     file_name = '{0}/{1}.txt'.format(db_listening_path, id_ter)  # file's name is the <terminal-id>]
@@ -194,11 +199,13 @@ def __make_tarfile(output_filename, source_dir):
 
 def download_tar(local_path, dropbox_paths, download_q):
     """
-
-    :param local_path:
-    :param dropbox_paths:
-    :param download_q:
-    :return:
+    Downloads files (tar.gz.aes) from dropbox, decrypts them, then extracts the chunks files inside
+    and merges them into single files, finally decrypts the files and builds a bozorth list file.
+    This method is used for charge operations 
+    :param local_path: str, where the files will be downloaded
+    :param dropbox_paths: str, dropbox's path files
+    :param download_q: queue, communication queue (pipe)
+    :return: None
     """
     try:
         # get the files from the cloud (dropbox accounts)
@@ -224,11 +231,12 @@ def download_tar(local_path, dropbox_paths, download_q):
 
 def download_chunks(local_path, dropbox_paths, download_q):
     """
-
-    :param local_path:
-    :param dropbox_paths:
-    :param download_q:
-    :return:
+    Downloads chunks files from dropbox, decrypts them then merges them into sigle files and
+    decrypts them again finally builds a bozorth list file. This method is used for charge operations 
+    :param local_path: str, where the files will be downloaded
+    :param dropbox_paths: str, dropbox's path files
+    :param download_q: queue, communication queue (pipe)
+    :return: None
     """
     try:
         # get the files from the cloud (dropbox accouts)
@@ -248,10 +256,11 @@ def download_chunks(local_path, dropbox_paths, download_q):
 
 def compare(paths, t_res, read_q,):
     """
-
-    :param paths:
-    :param t_res:
-    :param read_q:
+    Compares .xyt fingerprints files for a charge operation. Compares the extracted .xyt file from the incoming image
+    and matchs it against all the files with same pin, looking for the biggest matches that exceeds a required minimum for trustful match
+    :param paths: list, contains the working paths for the charge operation.
+    :param t_res: dict, hash with the charge info
+    :param read_q: queue, reads incoming messages from the queue, operation success depends on the kind of messages.
     :return:
     """
     try:
@@ -279,13 +288,13 @@ def compare(paths, t_res, read_q,):
                 linecache.clearcache()
                 line = os.path.basename(line)
                 line = line[:line.rfind('.')]
-                print max_value
-                if min_value <= max_value:  # we got a max.
-                    print 'Match with : {0}'.format(line)  # the result, name of the greatest one
+                print max_value  # just for test
+                if min_value <= max_value:  # we've got a max.
+                    print 'Match with : {0}'.format(line)  # the result, name of the greatest one, just for test
                     __write_to_file(watchdog_forward, t_res, line, __prepare_to_write_com)
                 else:
                     __writ_fail_watchdog_db(db_listening_path, t_res['ter_id'])
-                    print 'not found max value, forward to db_response to be send terminals folder'
+                    print 'not found max value, forward to db_response to be send terminals folder'  # just for test
 
         shutil.rmtree(paths[0])  # always remove
 
@@ -297,11 +306,12 @@ def compare(paths, t_res, read_q,):
 
 def download_tar_up(local_path, dropbox_paths, download_q):
     """
-
-    :param local_path:
-    :param dropbox_paths:
-    :param download_q:
-    :return:
+    Downloads files (tar.gz.aes) from dropbox, decrypts and extracts the files within them.
+    This method is used for registration operations
+    :param local_path: str, where the files will be downloaded
+    :param dropbox_paths: str, dropbox's path files
+    :param download_q: queue, communication queue (pipe)
+    :return: None
     """
     try:
         # get the files from the cloud (dropbox accounts)
@@ -322,11 +332,11 @@ def download_tar_up(local_path, dropbox_paths, download_q):
 
 def upload_tar(paths, read_q, t_res):
     """
-
-    :param paths:
-    :param read_q:
-    :param t_res:
-    :return:
+    Register new fingerprint file. 
+    :param paths: list, contains the working paths for the register operation.
+    :param read_q: queue, reads incoming messages from the queue, operation success depends on the kind of messages.
+    :param t_res: dict, hash with the registration info
+    :return: None
     """
     try:
         recv_1 = read_q.get(timeout=queue_timeout)
@@ -351,7 +361,7 @@ def upload_tar(paths, read_q, t_res):
             # encrypt tar.gz
             enc.encrypt_chunks_tar(paths[1], key_path_2, suffix_chunk_tar)
 
-            # upload encrypted files (it overwrites files with same name and format in dropbox)
+            # upload encrypted files (overwrites files with same name and format in dropbox)
             tar_aes_path = [(i, i[i.find('%')+1:i.find(suffix_chunk_tar)]) for i in os.listdir(paths[1]) if i.find(enc_format) > -1]
 
             print tar_aes_path
@@ -369,7 +379,7 @@ def upload_tar(paths, read_q, t_res):
 
 def extract_mindtct(source_path, extract_q, dst_path):
     '''
-    extracts minutaie from an img and saves the output in a given path
+    Extracts minutaie from an img and saves the output in a given path
     :param source_path: str img path
     :param extract_q: queue to signal another process.
     :param dst_path: str path to be placed the output (.xyt and .brw)
@@ -393,10 +403,10 @@ def extract_mindtct(source_path, extract_q, dst_path):
 
 def prepare_client_file(file_name, values):
     """
-
-    :param file_name:
-    :param values:
-    :return:
+    Creates file in terminal's inbox with the result of the required operation.
+    :param file_name: path to the terminal's inbox.
+    :param values: tuple, has epoch time to distinguish and the result of the operation.
+    :return: None
     """
     try:
         with open(file_name, 'w') as f:
