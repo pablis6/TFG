@@ -1,0 +1,2 @@
+FAILURE
+La huella o el pin son incorrectos
